@@ -1,9 +1,44 @@
-export default function Publics() {
+import Link from "next/link";
+
+const categories = [
+  { key: "자연재해", label: "자연재해" },
+  { key: "사고", label: "사고" },
+  { key: "교통", label: "교통" },
+  { key: "치안", label: "치안" },
+  { key: "시설고장", label: "시설 고장" },
+  { key: "기타", label: "기타" },
+] as const;
+
+export default function PublicsIndexPage() {
   return (
-    <div className="relative w-full h-full flex flex-col bg-gray-200">
-      <main className="px-6 pt-30 pb-18 w-full h-full flex flex-col items-center gap-5 overflow-y-auto scrollbar-hide scroll-smooth">
-        <h1>PublicEventPage</h1>
-      </main>
-    </div>
+    <section className="px-6 py-4">
+      {/* 상단 타이틀 바 */}
+      <div className="bg-[#D9D9D9] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        공공 데이터 소식
+      </div>
+
+      {/* 2열 카드 그리드 */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+        {categories.map((c) => (
+          <Link
+            key={c.key}
+            href={`/publics/${encodeURIComponent(c.key)}`}
+            className={[
+              "block h-[130px]",
+              "border border-[#D9D9D9] bg-white shadow-sm",
+              "flex items-center justify-center px-3 text-center",
+              "text-[20px] font-semibold text-neutral-900",
+              "transition-colors duration-200 ease-in-out",
+              "hover:bg-[#D9D9D9]", // 마우스 hover 기본 흰색 → hover 회색
+              "focus-visible:bg-[#D9D9D9]", // 키보드 포커스
+              "active:bg-[#D9D9D9]", // 터치/클릭 시
+              "active:scale-[0.99] active:bg-neutral-50",
+            ].join(" ")}
+          >
+            {c.label}
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
