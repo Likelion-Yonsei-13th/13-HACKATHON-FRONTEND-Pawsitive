@@ -22,7 +22,7 @@ export default function LocalIndexPage() {
         {categories.map((c) => (
           <Link
             key={c.key}
-            href={`/localEvent/${encodeURIComponent(c.key)}`}
+            href={`/localevent/${encodeURIComponent(c.key)}`}
             className={[
               "block h-[100px]",
               "border border-[#D9D9D9] bg-white shadow-sm",
@@ -40,7 +40,7 @@ export default function LocalIndexPage() {
 
       {/* NestOn 추천 행사 보기 버튼 */}
       <Link
-        href="/localEvent/recommend"
+        href="/localevent/recommend"
         className="block w-full bg-[#D9D9D9] text-center text-[18px] font-medium py-3 rounded-sm hover:bg-gray-300 transition-colors"
       >
         NestOn 추천 행사 보기

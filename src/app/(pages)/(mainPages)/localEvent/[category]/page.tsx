@@ -94,7 +94,7 @@ export default async function LocalEventCategoryPage({
             className="rounded-xl border bg-white overflow-hidden"
           >
             <Link
-              href={`/localEvent/${encodeURIComponent(decoded)}/${ev.id}`}
+              href={`/localevent/${encodeURIComponent(decoded)}/${ev.id}`}
               className="block"
             >
               {/* 썸네일 자리(없으면 회색 박스) */}
