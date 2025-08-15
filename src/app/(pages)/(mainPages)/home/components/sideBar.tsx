@@ -29,12 +29,12 @@ export default function SideBar({ isOpen }: SidebarProps) {
             </Link>
           </li>
           <li className="text-lg text-gray-800 border-b-2 pb-4 mb-4">
-            <Link href="/" className="text-gray-700 hover:text-blue-500">
+            <Link href="/myarea" className="text-gray-700 hover:text-blue-500">
               나의 지역
             </Link>
           </li>
           <li className="text-lg text-gray-800 border-b-2 pb-4 mb-4">
-            <Link href="/" className="text-gray-700 hover:text-blue-500">
+            <Link href="/myevent" className="text-gray-700 hover:text-blue-500">
               나의 관심 행사 / 상권
             </Link>
           </li>
