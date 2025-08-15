@@ -34,9 +34,11 @@ export default function MainPage() {
               <button className="w-[135.9px] h-[57.57px] text-l bg-gray-400">
                 제보하기
               </button>
-              <button className="w-[135.9px] h-[57.57px] text-l bg-gray-400">
-                타 지역 둘러보기
-              </button>
+              <Link href={"/otherareas"}>
+                <button className="w-[135.9px] h-[57.57px] text-l bg-gray-400">
+                  타 지역 둘러보기
+                </button>
+              </Link>
             </div>
           </div>
         </main>
