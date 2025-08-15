@@ -4,7 +4,7 @@ import PageLayout from "./components/PageLayout";
 export default function MainPage() {
   return (
     <PageLayout>
-      <div className="relative w-full h-full flex flex-col bg-gray-200/50">
+      <div className="relative flex flex-col">
         {/* 배경색 임의로 지정했습니다 */}
 
         <main className="px-4 pt-20 pb-18 w-full h-full flex flex-col items-center gap-5 overflow-y-auto scrollbar-hide scroll-smooth">
