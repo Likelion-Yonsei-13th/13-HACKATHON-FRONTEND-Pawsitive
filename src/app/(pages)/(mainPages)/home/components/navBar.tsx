@@ -24,7 +24,7 @@ export default function NavBar({ onMenuClick, pageTitle }: NavBarProps) {
       </div>
 
       {pageTitle && (
-        <div className="w-full bg-white border-b-1 border-black py-5 text-xl text-center font-bold text-gray-800 relative z-20">
+        <div className="w-full bg-white border-b-1 border-black py-3 text-l text-center font-bold text-gray-800 relative z-20">
           <h1>{pageTitle}</h1>
         </div>
       )}
