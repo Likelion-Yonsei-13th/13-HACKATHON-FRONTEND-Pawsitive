@@ -11,7 +11,7 @@ export default function MyEvent() {
       <div>
         <div className="flex flex-raw gap-4 justify-start items-end mx-6 mt-8 mb-10">
           <p className="text-3xl font-bold">{user?.name ?? "이름 없음"}</p>
-          <p className="text-2xl">님, 안녕하세요!</p>
+          <p className="text-2xl">님의 행사 / 상권이에요</p>
         </div>
 
         {/* 상세 리스트 */}
