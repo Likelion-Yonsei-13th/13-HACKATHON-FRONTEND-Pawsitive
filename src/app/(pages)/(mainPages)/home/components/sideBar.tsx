@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import React from "react";
 
@@ -8,9 +9,11 @@ interface SidebarProps {
 export default function SideBar({ isOpen }: SidebarProps) {
   return (
     <aside
-      className={`absolute top-0 left-0 h-full bg-white z-30 transition-transform duration-300 ease-in-out ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`fixed left-0 top-16  
+                  h-full  
+                  bg-white z-30        
+                  transition-transform duration-300 ease-in-out
+                  ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       style={{ width: "400px" }}
     >
       <div className="p-6">

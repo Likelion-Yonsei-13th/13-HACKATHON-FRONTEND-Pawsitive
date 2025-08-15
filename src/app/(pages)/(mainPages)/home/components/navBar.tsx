@@ -1,29 +1,33 @@
+"use client";
 import Link from "next/link";
 import React from "react";
 
 interface NavBarProps {
   onMenuClick: () => void;
+  pageTitle?: string;
 }
 
-export default function NavBar({ onMenuClick }: NavBarProps) {
+export default function NavBar({ onMenuClick, pageTitle }: NavBarProps) {
   return (
-    <div className="relative mx-auto min-w-[320px] max-w-[500px] w-full flex flex-col bg-gray-200">
-      <main className="px-6 pt-6 pb-6 w-full flex flex-row justify-between items-center overflow-y-auto scrollbar-hide scroll-smooth">
+    <nav className="relative mx-auto min-w-[320px] max-w-[500px] w-full flex flex-col bg-gray-200">
+      <div className="h-16 px-6 w-full flex flex-row justify-between items-center relative z-40">
         <button onClick={onMenuClick}>
           <img src="/svg/menu.svg" alt="menu" />
         </button>
 
         <Link href="/">
-          <button>
-            <img src="/img/NestOn.png" alt="NestOn" />
-          </button>
+          <img src="/svg/NestOn.svg" alt="NestOn" className="w-20" />
         </Link>
         <Link href="/alarm">
-          <button>
-            <img src="/svg/alarm.svg" alt="alarm" />
-          </button>
+          <img src="/svg/alarm.svg" alt="alarm" className="w-9" />
         </Link>
-      </main>
-    </div>
+      </div>
+
+      {pageTitle && (
+        <div className="w-full bg-white border-b-1 border-black py-5 text-xl text-center font-bold text-gray-800 relative z-20">
+          <h1>{pageTitle}</h1>
+        </div>
+      )}
+    </nav>
   );
 }
