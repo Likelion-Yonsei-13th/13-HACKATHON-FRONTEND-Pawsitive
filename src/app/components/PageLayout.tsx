@@ -6,7 +6,7 @@ import NavBar from "../(pages)/(mainPages)/home/components/navBar";
 import Sidebar from "../(pages)/(mainPages)/home/components/sideBar";
 
 type PageLayoutProps = {
-  pageTitle: string;
+  pageTitle?: string;
   children: ReactNode;
 };
 
