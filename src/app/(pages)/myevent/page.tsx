@@ -1,3 +1,4 @@
+'"use client";';
 import PageLayout from "@/app/components/PageLayout";
 import { data as users } from "@/data";
 
