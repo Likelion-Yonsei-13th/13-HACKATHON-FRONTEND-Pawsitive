@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import NavBar from "../(pages)/(mainPages)/home/components/navBar";
-import Sidebar from "../(pages)/(mainPages)/home/components/sideBar";
+import SideBar from "../(pages)/(mainPages)/home/components/sideBar";
 
 type PageLayoutProps = {
   pageTitle?: string;
@@ -21,7 +21,7 @@ export default function PageLayout({ pageTitle, children }: PageLayoutProps) {
         id="main-layout"
         className="relative mx-auto min-w-[320px] max-w-[500px] w-full overflow-x-hidden"
       >
-        <Sidebar isOpen={isSidebarOpen} />
+        <SideBar isOpen={isSidebarOpen} />
         <div className="w-full">{children}</div>
       </main>
     </>
