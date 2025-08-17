@@ -20,22 +20,8 @@ export default async function LocalEventDetailPage({
 
   return (
     <article className="px-4 pb-10 space-y-3">
-      {/* 헤더/브레드크럼 */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
-        <div className="flex items-center gap-2 py-2">
-          <Link
-            href={`/localEvent/${encodeURIComponent(decodedCat)}`}
-            className="text-sm text-blue-600"
-          >
-            ← 목록으로
-          </Link>
-          <h1 className="mx-auto text-center font-semibold">{`지역 행사 > ${decodedCat}`}</h1>
-          <div className="w-16" />
-        </div>
-      </div>
-
       {/* 메인 비주얼 */}
-      <div className="h-[160px] bg-neutral-200 rounded-md" />
+      <div className="h-[160px] bg-neutral-200 rounded-md mt-6" />
 
       {/* 본문 정보 */}
       <section className="space-y-1">

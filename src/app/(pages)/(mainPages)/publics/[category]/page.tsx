@@ -41,19 +41,15 @@ export default async function PublicsCategoryPage({
 
   return (
     <section className="px-4">
-      <div className="sticky top-0 bg-white/90 backdrop-blur z-10 border-b">
-        <h3 className="text-center py-2 font-semibold">{`공공 데이터 > ${decoded}`}</h3>
-      </div>
-
       <ul className="space-y-2 py-2">
         {items.map((n) => (
           <li
             key={n.id}
-            className="bg-white rounded-lg border border-neutral-200 overflow-hidden"
+            className="bg-[#D9D9D9]/54 rounded-lg border border-neutral-200 overflow-hidden"
           >
             <div className="flex items-center">
               <div className="flex-1 px-3 py-2">
-                <div className="text-sm font-semibold">{n.title}</div>
+                <div className="text-sm fonmibold">{n.title}</div>
                 <div className="text-xs text-neutral-500">{n.time}</div>
                 <p className="mt-1 text-sm text-neutral-700 line-clamp-1">
                   {n.summary}
@@ -61,7 +57,7 @@ export default async function PublicsCategoryPage({
               </div>
               <div className="w-14 h-14 flex items-center justify-center">
                 {n.level === "warn" ? (
-                  <span className="text-2xl">⚠️</span>
+                  <span className="text-3xl">⚠️</span>
                 ) : (
                   <span className="text-2xl">ℹ️</span>
                 )}
@@ -70,11 +66,6 @@ export default async function PublicsCategoryPage({
           </li>
         ))}
       </ul>
-
-      {/* 하단 경고 배지 (와이어프레임용) */}
-      <div className="fixed bottom-3 right-3 text-2xl" title="주의">
-        ⚠️
-      </div>
     </section>
   );
 }
