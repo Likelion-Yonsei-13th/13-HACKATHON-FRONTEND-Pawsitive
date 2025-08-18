@@ -8,12 +8,12 @@ import Image from "next/image";
 export default function MainPage() {
   return (
     <PageLayout>
-      <main className="px-4 pt-20 pb-18 w-full h-full flex flex-col items-center gap-5">
+      <main className="px-4 pt-15 pb-18 w-full h-full flex flex-col items-center gap-5">
         <p className="text-2xl text-center font-bold text-gray-800">
           NestOn 서대문구 이슈 리포트
         </p>
 
-        <div className="flex flex-col items-center gap-8 mt-10">
+        <div className="flex flex-col items-center gap-5 mt-10">
           {/* 공공 데이터 소식 */}
           <SlideDown
             title="공공 데이터 소식"
@@ -52,7 +52,7 @@ export default function MainPage() {
               { type: "link", label: "자세히 보기", href: "/localevent" },
             ]}
           />
-          <div className="flex flex-row gap-6 mt-10 items-center">
+          <div className="flex flex-row gap-6 mt-20 items-center">
             <Link href="/chatbot">
               <Image
                 src="/svg/mainLogo.svg"
@@ -69,7 +69,7 @@ export default function MainPage() {
                 alt="chatbotIcon"
                 width={110}
                 height={84.5}
-                className="mb-10"
+                className="mb-20"
               />
             </Link>
           </div>
@@ -81,7 +81,7 @@ export default function MainPage() {
             </Link>
 
             <Link href="/otherareas">
-              <button className="w-[135.9px] h-[50.307px] text-16 text-center bg-white border rounded-[50px] shadow">
+              <button className="w-[150px] h-[65px] text-14 text-center bg-white border rounded-[50px] shadow-md">
                 타 지역 둘러보기
               </button>
             </Link>

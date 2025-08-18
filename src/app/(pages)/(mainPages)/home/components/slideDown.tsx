@@ -34,19 +34,19 @@ export function SlideDown({
   }, [open]);
 
   return (
-    <div ref={rootRef} className={cn("w-[305px] relative", className)}>
+    <div ref={rootRef} className={cn("w-[350px] relative", className)}>
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={panelId}
         className={cn(
-          "h-[50px] w-full px-4 flex items-center justify-center gap-2",
-          "rounded-[5px] transition-colors duration-200 ease-in-out",
+          "h-[55px] w-full px-4 flex items-center justify-center gap-2",
+          "rounded-[7px] transition-colors duration-200 ease-in-out",
           "focus-visible:outline-none",
 
           open
             ? "bg-[var(--color-mainMint)] text-black border-0 shadow-[0_6px_16px_rgba(0,0,0,0.12)]"
-            : "bg-white text-black border border-gray-200 hover:bg-[var(--color-mainMint)] shadow"
+            : "bg-white text-black border border-gray-200 hover:bg-[var(--color-mainMint)] shadow-md"
         )}
       >
         <span className="text-l">{title}</span>
@@ -86,7 +86,7 @@ export function SlideDown({
                       it.onClick();
                       setOpen(false);
                     }}
-                    className="w-full h-[50px] px-4 text-center"
+                    className="w-full h-[40px] px-4 text-center"
                   >
                     {it.label}
                   </button>

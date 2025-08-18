@@ -19,7 +19,6 @@ export default function OtherAreasPage() {
     "동대문구",
     "동작구",
     "마포구",
-    "서대문구",
     "서초구",
     "성동구",
     "성북구",
@@ -40,30 +39,40 @@ export default function OtherAreasPage() {
   return (
     <PageLayout>
       <div>
-        <p className="text-2xl font-bold flex justify-start items-end mx-7 mt-10 mb-7">
+        <p className="text-2xl font-bold flex justify-start items-end mx-9 mt-10 mb-8">
           타 지역 둘러보기
         </p>
-        <div className="mx-7 mb-10">
+        <div className="mx-7 mb-5">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="궁금한 지역구 이름을 입력하세요"
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+            placeholder="관심 있는 지역을 검색해보세요."
+            className="w-full px-4 py-3 border-1 border-gray-300 rounded-md focus:outline-none focus:border-gray-500"
           />
         </div>
-
+        <p className="flex justify-center mb-5 text-md text-gray-600">
+          추후 확장 예정입니다!
+        </p>
         <ul className="space-y-10">
           {filteredDistricts.map((label) => (
             <li
               key={label}
-              className="relative text-xl bg-gray-300 mx-10 mb-10 pl-4 px-4 py-3"
+              className="relative text-xl opacity-60 bg-white border-1 rounded-[10px] mx-6 mb-4 pl-4 px-4 py-3"
             >
               <div className="flex flex-row justify-between items-center">
-                <p className="text-xl text-center mr-15">{label}</p>
-                <button className="px-2 py-1 text-l bg-white">공공</button>
-                <button className="px-2 py-1 text-l bg-white">제보</button>
-                <button className="px-2 py-1 text-l bg-white">행사</button>
+                <p className="text-xl text-center mr-10">{label}</p>
+                <div className="flex items-center gap-4">
+                  <button className="px-5 py-3 rounded-[20px] text-sm shadow-md bg-[#FDF9C2]">
+                    공공
+                  </button>
+                  <button className="px-5 py-3 rounded-[20px] text-sm shadow-md bg-[#FFE5E5]">
+                    제보
+                  </button>
+                  <button className="px-5 py-3 rounded-[20px] text-sm shadow-md bg-[#DCEBFF]">
+                    행사
+                  </button>
+                </div>
               </div>
             </li>
           ))}
