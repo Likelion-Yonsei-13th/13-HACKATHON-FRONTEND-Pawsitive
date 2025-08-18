@@ -15,7 +15,7 @@ export default function ReportsIndexPage() {
     <PageLayout>
       <section className="px-6 py-4">
         {/* 상단 타이틀 바 */}
-        <div className="bg-[#D9D9D9] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
           제보 데이터 소식
         </div>
 
@@ -31,7 +31,7 @@ export default function ReportsIndexPage() {
                 "flex items-center justify-center px-3 text-center",
                 "text-[20px] font-semibold text-neutral-900",
                 "transition-colors duration-200 ease-in-out",
-                "hover:bg-[#D9D9D9]", // 기본 흰색 → hover 회색
+                "hover:bg-[#DBFFEA]", // 기본 흰색 → hover 회색
                 "active:scale-[0.99] active:bg-neutral-50",
               ].join(" ")}
             >

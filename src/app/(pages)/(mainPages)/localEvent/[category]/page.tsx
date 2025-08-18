@@ -81,11 +81,6 @@ export default async function LocalEventCategoryPage({
 
   return (
     <section className="px-4 pb-8">
-      {/* 상단 제목바 */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
-        <h2 className="text-center py-2 font-semibold">{`지역 행사 > ${decoded}`}</h2>
-      </div>
-
       {/* 카드 목록 */}
       <ul className="grid grid-cols-2 gap-3 mt-3">
         {items.map((ev) => (

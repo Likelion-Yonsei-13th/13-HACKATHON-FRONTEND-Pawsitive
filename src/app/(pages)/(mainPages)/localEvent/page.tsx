@@ -15,7 +15,7 @@ export default function LocalIndexPage() {
     <PageLayout>
       <section className="px-6 py-4">
         {/* 상단 타이틀 바 */}
-        <div className="bg-[#D9D9D9] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
           나의 지역 행사 확인하기
         </div>
 
@@ -31,7 +31,9 @@ export default function LocalIndexPage() {
                 "flex items-center justify-center px-3 text-center",
                 "text-[16px] font-semibold text-neutral-900",
                 "transition-colors duration-200 ease-in-out",
-                "hover:bg-[#D9D9D9]", // 기본 흰색 → hover 회색
+                "hover:bg-[#DBFFEA]", // 기본 흰색 → hover 민트
+                "focus-visible:bg-[#DBFFEA]", // 키보드 포커스
+                "active:bg-[#DBFFEA]", // 터치/클릭 시
                 "active:scale-[0.99] active:bg-neutral-50",
               ].join(" ")}
             >
@@ -43,7 +45,7 @@ export default function LocalIndexPage() {
         {/* NestOn 추천 행사 보기 버튼 */}
         <Link
           href="/localevent/recommend"
-          className="block w-full bg-[#D9D9D9] text-center text-[18px] font-medium py-3 rounded-sm hover:bg-gray-300 transition-colors"
+          className="block w-full bg-[#DBFFEA] text-center text-[18px] font-medium py-3 rounded-sm hover:bg-gray-300 transition-colors"
         >
           NestOn 추천 행사 보기
         </Link>
