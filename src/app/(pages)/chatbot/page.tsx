@@ -15,15 +15,14 @@ function useKeyboard() {
 
     const update = () => {
       if (!vv) {
-        // visualViewport 미지원 브라우저용 대략치
         const open = window.innerHeight < screen.height * 0.8;
         setIsOpen(open);
         setOffset(0);
         return;
       }
-      // 화면 높이 - 실제 보이는 높이 = 가려진 영역(대부분 키보드)
       const dy = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setIsOpen(dy > 80); // 80px 이상 줄어들면 키보드로 판단
+      setIsOpen(dy > 80);
+      // 80px 이상 줄어들면 키보드로 판단함
       setOffset(dy);
     };
 
@@ -42,13 +41,57 @@ function useKeyboard() {
   return { isOpen, offset };
 }
 
+type Msg = { id: number; role: "user"; text: string };
+
 export default function Chatbot() {
   const { isOpen, offset } = useKeyboard();
   const [focused, setFocused] = useState(false);
-  const hideCtas = isOpen || focused;
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const bottomSafePadding = useMemo(() => 80, []); // 입력바 대략 높이
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const hasMessages = messages.length > 0;
+  const hideCtas = isOpen || focused || hasMessages;
+
+  // 일단 로컬스토리지에 메세지 내용 저장하도록 구현
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("neston_chat_messages");
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as Msg[];
+        if (Array.isArray(parsed)) setMessages(parsed);
+      } catch {}
+    }
+  }, []);
+
+  // 로컬스토리지 저장
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("neston_chat_messages", JSON.stringify(messages));
+  }, [messages]);
+
+  // 새 메시지 생기면 스크롤 맨 아래로 가도록 함
+  useEffect(() => {
+    if (!listRef.current) return;
+    listRef.current.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  // 전송
+  const send = () => {
+    const v = input.trim();
+    if (!v) return;
+    setMessages((prev) => [...prev, { id: Date.now(), role: "user", text: v }]);
+    setInput("");
+  };
+
+  const bottomSafePadding = useMemo(() => 80, []);
+
   return (
     <PageLayout>
       <div
@@ -57,23 +100,26 @@ export default function Chatbot() {
           paddingBottom: `calc(${bottomSafePadding}px + env(safe-area-inset-bottom))`,
         }}
       >
-        <div className="flex w-full flex-col items-center">
-          <div className="mt-10 rounded-[50px] border-2 bg-mainMint px-29 py-6 text-center text-xl">
-            <p>안녕하세요,</p>
-            <p>
-              <strong>NestOn</strong> 입니다
-            </p>
-          </div>
+        {/* 첫 메시지 이후엔 인사말, 로고 숨김 */}
+        {!hasMessages && (
+          <div className="flex w-full flex-col items-center">
+            <div className="mt-10 rounded-[50px] border-2 bg-mainMint px-29 py-6 text-center text-xl">
+              <p>안녕하세요,</p>
+              <p>
+                <strong>NestOn</strong> 입니다
+              </p>
+            </div>
 
-          <Image
-            src="/svg/mainLogo.svg"
-            alt="chatbot"
-            width={150}
-            height={100}
-            className="mt-13 mb-6"
-            priority
-          />
-        </div>
+            <Image
+              src="/svg/mainLogo.svg"
+              alt="chatbot"
+              width={150}
+              height={100}
+              className="mt-13 mb-6"
+              priority
+            />
+          </div>
+        )}
 
         {!hideCtas && (
           <section className="mt-8 flex flex-col justify-center">
@@ -92,10 +138,22 @@ export default function Chatbot() {
           </section>
         )}
 
-        {/* 키보드가 가린 영역을 피하기 위한 여백*/}
-        <div className="h-[40vh] w-full" />
+        {/* 채팅 영역 */}
+        <div className={hasMessages ? "w-full mt-20" : "w-full"}>
+          <div className="h-[40vh] w-full">
+            <div ref={listRef} className="h-full w-full overflow-y-auto pr-1">
+              {messages.map((m) => (
+                <div key={m.id} className="mb-3 flex justify-end">
+                  <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 shadow">
+                    <p className="text-sm leading-relaxed">{m.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        {/* 하단 입력 바 : 키보드 높이만큼 위로 끌어올림 + 안전영역 패딩 */}
+        {/* 하단 입력 바 */}
         <div
           className="fixed inset-x-0 z-50 flex flex-row justify-center items-center gap-3 mx-4 mb-8"
           style={{
@@ -115,14 +173,15 @@ export default function Chatbot() {
                 autoComplete="off"
                 autoCorrect="off"
                 enterKeyHint="send"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && send()}
               />
             </div>
           </div>
           <button
             className="px-3 py-2 place-items-center rounded-full border bg-white"
-            onClick={() => {
-              inputRef.current?.blur(); // 입력창 포커스 해제
-            }}
+            onClick={send}
             aria-label="전송"
             title="전송"
           >
