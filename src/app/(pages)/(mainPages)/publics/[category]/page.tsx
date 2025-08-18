@@ -41,7 +41,7 @@ export default async function PublicsCategoryPage({
 
   return (
     <section className="px-4">
-      <ul className="space-y-2 py-2">
+      <ul className="space-y-2 py-6">
         {items.map((n) => (
           <li
             key={n.id}

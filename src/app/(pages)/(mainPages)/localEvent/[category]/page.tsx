@@ -80,7 +80,7 @@ export default async function LocalEventCategoryPage({
   if (!items) notFound();
 
   return (
-    <section className="px-4 pb-8">
+    <section className="px-4 pb-8 py-3">
       {/* 카드 목록 */}
       <ul className="grid grid-cols-2 gap-3 mt-3">
         {items.map((ev) => (
