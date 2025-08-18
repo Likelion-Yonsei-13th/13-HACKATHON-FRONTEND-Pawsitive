@@ -20,7 +20,6 @@ export default function ReportsSummary() {
       id: "RepSum-2",
       title: "연세대학교 축제로 인한 소음 문제",
       periodText: "2025. 8.6 13:21",
-      image: "/img/summarySample.png",
     },
     {
       id: "RepSum-3",
@@ -65,7 +64,11 @@ export default function ReportsSummary() {
             className="flex items-center justify-start flex-row mx-6 gap-8 px-2 border-t-1 border-gray-300"
           >
             <div className="relative aspect-[4/3] my-3 overflow-hidden">
-              <img src={image} alt={title} className="w-[80px]" />
+              <img
+                src={image ?? "/img/placeholder.png"}
+                alt={title}
+                className="w-[80px]"
+              />
             </div>
             <div className="flex-1">
               <p className="font-medium text-m leading-tight">{title}</p>
