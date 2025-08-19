@@ -15,13 +15,12 @@ export default function LoginPage() {
     const password = String(fd.get("password") || "").trim();
     if (!userId || !password) return;
 
-    // 요구사항: 로컬에 저장 (데모 용도)
     localStorage.setItem(
       AUTH_KEY,
       JSON.stringify({ userId, password, ts: Date.now() })
     );
 
-    // 메인으로 이동 → / 에서 인트로만 잠깐 보이고 바로 메인 표시
+    // 로그인 성공 후 홈으로 이동
     router.replace("/");
   };
 
