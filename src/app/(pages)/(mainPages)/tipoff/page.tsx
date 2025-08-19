@@ -1,30 +1,30 @@
 import PageLayout from "@/app/components/PageLayout";
 import Link from "next/link";
 
-const categories = [
-  { key: "자연재해", label: "자연재해" },
-  { key: "사고", label: "사고" },
-  { key: "교통", label: "교통" },
-  { key: "치안", label: "치안" },
-  { key: "시설고장", label: "시설 고장" },
-  { key: "기타", label: "기타" },
+const CATEGORIES = [
+  "자연재해",
+  "사고",
+  "교통",
+  "치안",
+  "시설 고장",
+  "기타",
 ] as const;
 
-export default function ReportsIndexPage() {
+export default function TipoffIndexPage() {
   return (
     <PageLayout>
-      <section className="px-6 py-4">
-        {/* 상단 타이틀 바 */}
+      <section className="px-6 py-6">
+        {/* 상단 안내 바 (연한 초록) */}
         <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
-          제보 데이터 소식
+          지역 소식 제보하기
         </div>
 
         {/* 2열 카드 그리드 */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-          {categories.map((c) => (
+        <div className="grid grid-cols-2 gap-4">
+          {CATEGORIES.map((c, i) => (
             <Link
-              key={c.key}
-              href={`/reports/${encodeURIComponent(c.key)}`}
+              key={c}
+              href={`/tipoff/${encodeURIComponent(c)}`}
               className={[
                 "block h-[130px]",
                 "border border-[#D9D9D9] bg-white shadow-sm",
@@ -35,10 +35,14 @@ export default function ReportsIndexPage() {
                 "active:scale-[0.99] active:bg-neutral-50",
               ].join(" ")}
             >
-              {c.label}
+              {c}
             </Link>
           ))}
         </div>
+
+        <p className="mt-6 text-center text-sm text-neutral-500">
+          제보할 소식의 카테고리를 골라주세요
+        </p>
       </section>
     </PageLayout>
   );
