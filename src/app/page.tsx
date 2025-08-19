@@ -75,7 +75,7 @@ export default function MainPage() {
           </div>
           <div className="flex flex-row gap-4">
             <Link href="/tipoff">
-              <button className="w-[135.9px] h-[50.307px] text-16 text-center bg-white border rounded-[50px] shadow">
+              <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow">
                 제보하기
               </button>
             </Link>
