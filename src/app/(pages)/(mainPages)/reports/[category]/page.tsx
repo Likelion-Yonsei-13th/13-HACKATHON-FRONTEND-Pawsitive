@@ -33,7 +33,7 @@ export default async function ReportsCategoryPage({
   const enc = encodeURIComponent(decoded);
 
   return (
-    <section className="px-4 py-4">
+    <section className="px-4 py-6">
       {/* 상단 타이틀 + 정렬 탭 */}
       <div className="flex items-end justify-between">
         <h2 className="text-[18px] font-semibold">{decoded}</h2>
