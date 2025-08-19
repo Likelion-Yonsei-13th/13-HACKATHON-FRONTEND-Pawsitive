@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import NavBar from "../(pages)/(mainPages)/home/components/navBar";
 import SideBar from "../(pages)/(mainPages)/home/components/sideBar";
+import IntroOverlay from "./IntroOverlay";
 
 type PageLayoutProps = {
   pageTitle?: string;
@@ -22,7 +23,10 @@ export default function PageLayout({ pageTitle, children }: PageLayoutProps) {
         className="relative mx-auto min-w-[320px] max-w-[500px] w-full overflow-x-hidden"
       >
         <SideBar isOpen={isSidebarOpen} />
-        <div className="w-full">{children}</div>
+        <div className="w-full">
+          {children}
+          <IntroOverlay />
+        </div>
       </main>
     </>
   );
