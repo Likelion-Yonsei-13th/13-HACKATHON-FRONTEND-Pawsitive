@@ -4,7 +4,7 @@ import PageLayout from "@/app/components/PageLayout";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type PolicyId = "terms" | "privacy" | "location" | "marketing";
+type PolicyId = "terms" | "privacy" | "location" | "community";
 
 const AUTH_KEY = "neston_auth_v1";
 const CONSENT_KEY = "neston_consent_v1";
@@ -12,10 +12,10 @@ const CONSENT_KEY = "neston_consent_v1";
 export default function ConsentPage() {
   const router = useRouter();
 
-  const [requiredAgree, setRequiredAgree] = useState(false); // 위치기반(필수)
-  const [termsAgree, setTermsAgree] = useState(false); // 이용약관(필수) ★ 추가
-  const [privacyAgree, setPrivacyAgree] = useState(false); // 개인정보(필수) ★ 추가
-  const [marketingAgree, setMarketingAgree] = useState(false); // 마케팅(선택)
+  const [requiredAgree, setRequiredAgree] = useState(false);
+  const [termsAgree, setTermsAgree] = useState(false);
+  const [privacyAgree, setPrivacyAgree] = useState(false);
+  const [communityAgree, setCommunityAgree] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalId, setModalId] = useState<PolicyId | null>(null);
 
@@ -40,15 +40,16 @@ export default function ConsentPage() {
     } catch {}
   }, [router]);
 
-  const all = requiredAgree && termsAgree && privacyAgree && marketingAgree; // 전체 동의 상태
-  const allRequired = requiredAgree && termsAgree && privacyAgree; // 필수 3개
+  const all = requiredAgree && termsAgree && privacyAgree && communityAgree;
+  const allRequired =
+    requiredAgree && termsAgree && privacyAgree && communityAgree;
 
   const toggleAll = () => {
     const next = !all;
     setRequiredAgree(next);
     setTermsAgree(next);
     setPrivacyAgree(next);
-    setMarketingAgree(next);
+    setCommunityAgree(next);
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,7 +63,7 @@ export default function ConsentPage() {
           required: requiredAgree,
           terms: termsAgree,
           privacy: privacyAgree,
-          marketing: marketingAgree,
+          community: communityAgree,
           ts: Date.now(),
         })
       );
@@ -81,8 +82,8 @@ export default function ConsentPage() {
     focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-300`;
 
   return (
-    <PageLayout>
-      <div className="w-screen min-h-screen pt-10 pb-20 px-13 flex items-start justify-center bg-[linear-gradient(180deg,_#fff_0%,_#DBFFEA_100%)]">
+    <div>
+      <div className="w-screen min-h-screen pt-20 pb-20 px-13 flex items-start justify-center bg-[linear-gradient(180deg,_#fff_0%,_#DBFFEA_100%)]">
         <div className="w-full max-w-md">
           <h1 className="mb-7 text-2xl font-semibold  text-center leading-snug">
             아래 약관에 동의하시면
@@ -187,28 +188,29 @@ export default function ConsentPage() {
               </span>
             </label>
 
-            {/* (선택) 마케팅 푸시 */}
-            <label className="flex items-start gap-3 cursor-pointer">
+            {/* 커뮤니티 약관 */}
+            <label className="flex flex-row items-start gap-4 cursor-pointer">
               <input
                 type="checkbox"
-                checked={marketingAgree}
-                onChange={(e) => setMarketingAgree(e.target.checked)}
+                checked={communityAgree}
+                onChange={(e) => setCommunityAgree(e.target.checked)}
                 className={checkButton}
-                aria-label="마케팅 PUSH 수신 동의 (선택)"
+                aria-label="커뮤니티 운영 및 게시물 관리 정책 동의 (필수)"
               />
               <span className="flex flex-col">
                 <span className="font-medium">
-                  마케팅 PUSH 수신 동의 (선택)
+                  커뮤니티 운영 및 게시물 관리 정책 동의 (필수)
                 </span>
                 <span
                   className="mt-2 font-medium text-[12px] underline text-gray-500 cursor-pointer"
-                  onClick={() => openModal("marketing")}
+                  onClick={() => openModal("community")}
                 >
                   자세히 보기
                 </span>
                 <p className="mt-1 text-sm text-gray-500">
-                  이벤트·혜택 등 광고성 정보를 앱 Push로 받아볼 수 있습니다.
-                  미동의해도 서비스 이용은 가능합니다.
+                  이용자가 제보하는 모든 콘텐츠에 대한 책임과 신고, 게시물 관리
+                  절차에 동의합니다. 허위 또는 부적절한 콘텐츠는 삭제될 수
+                  있으며, 미동의 시 이용이 제한될 수 있습니다.
                 </p>
               </span>
             </label>
@@ -229,15 +231,13 @@ export default function ConsentPage() {
             </div>
 
             {/* 안내 문구 */}
-            <p className="mt-8 text-start text-xs text-gray-500">
+            <p className="mt-8 text-center text-xs text-gray-500">
               필수 항목 동의 시 서비스 이용이 가능합니다.
-              <br /> 마케팅 수신(선택)은 동의하지 않아도 이용 가능하며, 설정에서
-              다시 변경할 수 있습니다.
             </p>
           </form>
         </div>
       </div>
       <PolicyModal open={modalOpen} policyId={modalId} onClose={closeModal} />
-    </PageLayout>
+    </div>
   );
 }

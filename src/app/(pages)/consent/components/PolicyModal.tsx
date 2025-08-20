@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { POLICIES } from "@/consent_data";
 
-type PolicyId = "terms" | "privacy" | "location" | "marketing";
+type PolicyId = "terms" | "privacy" | "location" | "marketing" | "community";
 
 type Props = {
   open: boolean;
