@@ -67,15 +67,15 @@ export default function MainPage() {
               <Image
                 src="/svg/chatbotIcon.svg"
                 alt="chatbotIcon"
-                width={110}
-                height={84.5}
+                width={124.092}
+                height={100.757}
                 className="mb-20"
               />
             </Link>
           </div>
           <div className="flex flex-row gap-4">
             <Link href="/tipoff">
-              <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow">
+              <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
                 제보하기
               </button>
             </Link>

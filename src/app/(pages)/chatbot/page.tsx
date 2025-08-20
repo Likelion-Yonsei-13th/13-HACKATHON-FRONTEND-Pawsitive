@@ -114,7 +114,7 @@ export default function Chatbot() {
               src="/svg/mainLogo.svg"
               alt="chatbot"
               width={150}
-              height={100}
+              height={121.793}
               className="mt-13 mb-6"
               priority
             />

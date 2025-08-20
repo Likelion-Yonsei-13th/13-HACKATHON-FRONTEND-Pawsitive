@@ -82,7 +82,7 @@ export default function ConsentPage() {
 
   return (
     <PageLayout>
-      <div className="w-screen min-h-screen mt-10 flex items-start justify-center bg-[linear-gradient(180deg,_#fff_0%,_#DBFFEA_100%)] px-13">
+      <div className="w-screen min-h-screen pt-10 pb-20 px-13 flex items-start justify-center bg-[linear-gradient(180deg,_#fff_0%,_#DBFFEA_100%)]">
         <div className="w-full max-w-md">
           <h1 className="mb-7 text-2xl font-semibold  text-center leading-snug">
             아래 약관에 동의하시면
