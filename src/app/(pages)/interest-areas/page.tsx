@@ -110,24 +110,26 @@ export default function InterestAreasListPage() {
   // 완료 화면
   if (success) {
     return (
-      <div className="min-h-dvh w-full bg-[#DBFFEA] flex justify-center px-4 py-8">
-        <div className="w-full max-w-sm flex flex-col rounded-[24px] border border-[#cdeedd] bg-[#DBFFEA] p-6 shadow-[0_4px_0_#c7d7cf]">
-          <div className="text-xl font-semibold text-emerald-900">NestOn</div>
+      <div className="min-h-screen w-full bg-[#DBFFEA] flex justify-center px-4 py-8">
+        <div className="w-full max-w-sm flex flex-col p-5">
+          <div className="text-2xl font-semibold text-mainBrown pb-10">
+            NestOn
+          </div>
 
           <div className="mt-10">
-            <h2 className="text-xl font-extrabold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900">
               지역 추가가 완료되었습니다.
             </h2>
-            <p className="mt-3 text-sm leading-6 text-gray-700">
-              추후 ‘나의 지역 &gt; 지역 추가하기’에서
+            <p className="mt-4 text-sm leading-6 text-gray-900">
+              추후 ‘ 나의 지역 &gt; 지역 추가하기 ’ 에서
               <br />
-              지역 변경이 가능합니다
+              지역 변경이 가능합니다.
             </p>
           </div>
 
           <button
             onClick={handleNext}
-            className="mt-auto w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px]"
+            className="mt-auto mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px]"
           >
             다음
           </button>
@@ -138,7 +140,7 @@ export default function InterestAreasListPage() {
 
   // 지역 선택 화면
   return (
-    <div className="min-h-dvh w-full bg-[#DBFFEA] flex justify-center px-4 py-8">
+    <div className="min-h-screen w-full bg-[#DBFFEA] flex justify-center px-4 py-8">
       <div className="w-full max-w-sm p-5">
         {/* 상단 */}
         <div className="flex items-center justify-between">
@@ -211,7 +213,7 @@ export default function InterestAreasListPage() {
         <button
           onClick={handleNext}
           disabled={selected.length === 0}
-          className="mt-10 w-full rounded-[10px] bg-white py-3 text-base font-semibold text-gray-800 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-50 mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px]"
         >
           다음
         </button>
