@@ -78,7 +78,7 @@ export default function LocalEventsSummary() {
           </li>
         ))}
       </ul>
-      <div className="flex flex-row gap-10 pt-5 mb-5 justify-center items-start">
+      <div className="flex flex-row gap-6 pt-5 mb-5 justify-center items-start">
         <Link href="/">
           <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
             이전으로
