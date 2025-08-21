@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { POLICIES } from "@/consent_data";
+import { POLICIES } from "@/app/lib/consent_data";
 
 type PolicyId = "terms" | "privacy" | "location" | "marketing" | "community";
 

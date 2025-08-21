@@ -1,9 +1,31 @@
+"use client";
+
+import { useEffect } from "react";
+import PageLayout from "@/app/components/PageLayout";
+import { useNotifications } from "@/app/providers/NotificationsProvider";
+
 export default function AlarmPage() {
+  const { notifications, unreadCount, markAllRead } = useNotifications();
+
+  useEffect(() => {
+    if (unreadCount > 0) {
+      markAllRead();
+    }
+  }, [unreadCount, markAllRead]);
+
   return (
-    <div className="relative w-full h-full flex flex-col bg-gray-100">
-      <main className="px-6 pt-30 pb-18 w-full h-full flex flex-col items-center gap-5 overflow-y-auto scrollbar-hide scroll-smooth">
-        <h1>Alarm Page</h1>
-      </main>
-    </div>
+    <PageLayout pageTitle="알림">
+      <div className="w-full min-h-screen mt-6 space-y-4 px-6">
+        {notifications.map((n) => (
+          <article
+            key={n.id}
+            className="rounded-xl bg-white shadow-md px-4 py-4"
+          >
+            <p className="text-[12px] text-gray-400 mb-1">{n.title}</p>
+            <p className="text-sm text-gray-900">{n.message}</p>
+          </article>
+        ))}
+      </div>
+    </PageLayout>
   );
 }
