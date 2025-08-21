@@ -26,7 +26,7 @@ export default async function ReportDetailPage({
 
   return (
     // 하단 고정 버튼 공간 확보를 위해 pb 여유
-    <section className="px-4 pt-4 pb-24">
+    <section className="bg-transparent px-4 pt-4 pb-24">
       {/* ── 카드 박스 ───────────────────────────────────────── */}
       <article className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
         {/* 헤더(제목/메타) */}
