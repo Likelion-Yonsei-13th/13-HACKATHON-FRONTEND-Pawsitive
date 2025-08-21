@@ -1,6 +1,6 @@
 '"use client";';
 import PageLayout from "@/app/components/PageLayout";
-import { data as users } from "@/data";
+import { data as users } from "@/app/lib/data";
 
 export default function MyArea() {
   const user = users.find((u) => u.id === 1);

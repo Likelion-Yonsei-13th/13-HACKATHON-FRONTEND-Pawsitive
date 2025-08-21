@@ -1,7 +1,7 @@
 "use client";
 
-import PageLayout from "@/app/components/PageLayout";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const AUTH_KEY = "neston_auth_v1";
@@ -21,8 +21,7 @@ export default function LoginPage() {
       JSON.stringify({ userId, password, ts: Date.now() })
     );
 
-    // 로그인 성공 후 홈으로 이동
-    router.replace("/interest-areas");
+    router.replace("/interest-myarea");
   };
 
   return (
@@ -79,7 +78,11 @@ export default function LoginPage() {
         {/* 회원가입 이동 */}
         <div className="text-md text-black flex flex-col items-end gap-1 mt-10 ml-45">
           <p>계정이 없으신가요?</p>
-          <p className="underline underline-offset-3">회원가입하기</p>
+          <Link href={"/consent"}>
+            <button className="underline underline-offset-3">
+              회원가입하기
+            </button>
+          </Link>
         </div>
       </div>
     </div>

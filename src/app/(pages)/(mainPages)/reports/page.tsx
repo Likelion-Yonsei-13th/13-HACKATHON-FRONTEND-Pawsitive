@@ -40,6 +40,20 @@ export default function ReportsIndexPage() {
           ))}
         </div>
       </section>
+      <div className="flex flex-row gap-10 pt-5 mb-5 justify-center items-start">
+        <Link href="/">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
+            이전으로
+          </button>
+        </Link>
+        <Link href="/localevent">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md leading-5">
+            우리 지역 행사
+            <br />
+            자세히 보기
+          </button>
+        </Link>
+      </div>
     </PageLayout>
   );
 }

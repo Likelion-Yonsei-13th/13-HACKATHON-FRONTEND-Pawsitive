@@ -22,7 +22,7 @@ export default function IntroOverlay() {
 
     const timers: ReturnType<typeof setTimeout>[] = [];
 
-    const goLogin = () => router.replace("/consent");
+    const goLogin = () => router.replace("/login");
 
     try {
       const saved = localStorage.getItem(AUTH_KEY);

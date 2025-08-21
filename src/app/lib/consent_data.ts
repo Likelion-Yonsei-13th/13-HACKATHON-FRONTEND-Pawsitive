@@ -1,5 +1,3 @@
-// app/data/policies.ts
-
 export type PolicyId = "terms" | "privacy" | "location" | "community";
 
 export interface Policy {

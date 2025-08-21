@@ -1,13 +1,12 @@
-// app/interest-areas/list/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 // 로컬스토리지로 임시 구현
 const LS_KEY = "neston_interest_district_v1";
-const NEXT_ROUTE = "/";
-const MAX_SELECT = 5; // 최대 5개까지만 선택하도록 함
+const NEXT_ROUTE = "/interest-areas";
+const REQUIRED_DISTRICT = "서대문구";
 
 // 지역 더미 데이터
 const PROVINCES: Record<string, string[]> = {
@@ -58,50 +57,39 @@ const PROVINCE_ORDER = [
   "경남",
 ];
 
-// 선택 항목 타입
-type Picked = { province: string; district: string };
+type Picked = { province: string; district: string } | null;
 
 export default function InterestAreasListPage() {
   const router = useRouter();
   const [province, setProvince] = useState<string>("서울");
-  const [selected, setSelected] = useState<Picked[]>([]); // 복수 선택 가능
-  const [success, setSuccess] = useState(false); //다음 -> 완료화면 전환
+  const [picked, setPicked] = useState<Picked>(null);
+  const [success, setSuccess] = useState(false);
 
   const districts = PROVINCES[province] ?? [];
 
-  const selectedCountByProvince = useMemo(() => {
-    const m = new Map<string, number>();
-    selected.forEach((s) => m.set(s.province, (m.get(s.province) || 0) + 1));
-    return m;
-  }, [selected]);
-
   const isSelected = (prov: string, d: string) =>
-    selected.some((s) => s.province === prov && s.district === d);
+    picked?.province === prov && picked?.district === d;
 
   const toggleDistrict = (prov: string, d: string) => {
-    const exists = isSelected(prov, d);
-    if (exists) {
-      setSelected((prev) =>
-        prev.filter((s) => !(s.province === prov && s.district === d))
-      );
-      return;
-    }
-    if (selected.length >= MAX_SELECT) return; // 최대 개수 5개로 제한
-    setSelected((prev) => [...prev, { province: prov, district: d }]);
+    if (isSelected(prov, d)) setPicked(null);
+    else setPicked({ province: prov, district: d });
   };
+
+  // 서대문구 기준으로 데모 구현 -> 내지역은 서대문구 선택시에만 넘어감
+  const canProceed = picked?.district === REQUIRED_DISTRICT;
 
   const handleNext = () => {
     if (!success) {
-      if (selected.length === 0) return;
+      if (!canProceed) return;
       const payload = {
-        list: selected, // [{ province, district }]
-        districts: selected.map((s) => s.district), // 구 이름만 필요할 때
+        list: picked ? [picked] : [],
+        districts: picked ? [picked.district] : [],
         ts: Date.now(),
       };
       try {
         localStorage.setItem(LS_KEY, JSON.stringify(payload));
       } catch {}
-      setSuccess(true); // 완료 화면 전환 부분
+      setSuccess(true);
     } else {
       router.replace(NEXT_ROUTE);
     }
@@ -118,10 +106,10 @@ export default function InterestAreasListPage() {
 
           <div className="mt-10">
             <h2 className="text-2xl font-bold text-gray-900">
-              관심 지역 추가가 완료되었습니다.
+              내 지역 추가가 완료되었습니다.
             </h2>
             <p className="mt-4 text-sm leading-6 text-gray-900">
-              추후 ‘ 나의 지역 &gt; 지역 추가하기 ’ 에서
+              추후 ‘ 나의 지역 ’ 에서
               <br />
               지역 변경이 가능합니다.
             </p>
@@ -149,22 +137,30 @@ export default function InterestAreasListPage() {
           </div>
         </div>
 
-        <h1 className="mt-10 text-xl font-bold text-gray-900 text-center">
-          추가로 관심 있는 지역을 선택해 주세요
+        <h1 className="mt-10 text-2xl font-bold text-gray-900 text-center">
+          이슈가 궁금한 지역을 선택해 주세요
         </h1>
-        <p className="text-xs text-gray-700 text-center pt-2">
-          부모님댁, 직장 등 자주 가는 곳도 함께 추가해 보세요
-          <br />
-          (최대 5개까지 선택 가능)
+
+        {/* 안내: 서대문구 조건 */}
+        <p className="mt-2 text-xs text-center">
+          <span className="px-2 py-1 rounded bg-white/70">
+            ‘{REQUIRED_DISTRICT}’
+          </span>{" "}
+          선택 시에만 다음으로 진행할 수 있습니다.
+          <br />({REQUIRED_DISTRICT} 기준으로 구현했습니다)
         </p>
 
         {/* 리스트 박스 */}
-        <div className="mt-9 grid grid-cols-[120px_1fr] border-1 border-gray-300 overflow-hidden bg-white">
+        {/* ❗ overflow-hidden 제거, border-1 → border, 내부 칼럼에 고정 높이 + overflow-y-auto 부여 */}
+        <div className="mt-9 grid grid-cols-[120px_1fr] border border-gray-300 bg-white">
           {/* 좌측: 시/도 */}
-          <div className="max-h-80 overflow-auto border-r border-gray-300">
+          <div
+            className="h-80 overflow-y-auto border-r border-gray-300"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {PROVINCE_ORDER.map((p) => {
               const current = p === province;
-              const count = selectedCountByProvince.get(p) || 0;
+              const isPickedInThis = picked?.province === p;
               return (
                 <button
                   key={p}
@@ -177,9 +173,9 @@ export default function InterestAreasListPage() {
                   }`}
                 >
                   {p}
-                  {count > 0 && (
+                  {isPickedInThis && (
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
-                      {count}
+                      1
                     </span>
                   )}
                 </button>
@@ -187,8 +183,11 @@ export default function InterestAreasListPage() {
             })}
           </div>
 
-          {/* 우측: 구/시 (토글 복수 선택)*/}
-          <div className="max-h-80 overflow-auto">
+          {/* 우측: 구/시 (단일 토글 선택) */}
+          <div
+            className="h-80 overflow-y-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {districts.map((d) => {
               const sel = isSelected(province, d);
               return (
@@ -212,8 +211,8 @@ export default function InterestAreasListPage() {
         {/* 다음 버튼 */}
         <button
           onClick={handleNext}
-          disabled={selected.length === 0}
-          className="mt-50 mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px]"
+          disabled={!canProceed}
+          className="mt-[50px] mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px] disabled:opacity-50"
         >
           다음
         </button>
