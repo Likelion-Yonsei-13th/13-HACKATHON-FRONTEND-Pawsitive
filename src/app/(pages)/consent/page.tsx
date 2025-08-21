@@ -1,6 +1,5 @@
 "use client";
 import PolicyModal from "@/app/(pages)/consent/components/PolicyModal";
-import PageLayout from "@/app/components/PageLayout";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -35,7 +34,7 @@ export default function ConsentPage() {
         return;
       }
       if (localStorage.getItem(CONSENT_KEY)) {
-        router.replace("/login");
+        router.replace("/join");
       }
     } catch {}
   }, [router]);
@@ -69,7 +68,7 @@ export default function ConsentPage() {
       );
     } catch {}
 
-    router.replace("/login");
+    router.replace("/join");
   };
 
   const checkButton = `shrink-0 aspect-square
