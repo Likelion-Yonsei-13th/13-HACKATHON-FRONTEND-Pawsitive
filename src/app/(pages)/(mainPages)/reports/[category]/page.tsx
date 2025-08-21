@@ -101,13 +101,12 @@ export default async function ReportsCategoryPage({
 
       {/* 하단 CTA */}
       <div className="mt-6">
-        <button
-          type="button"
-          className="w-full rounded-xl border bg-white px-4 py-3 text-center text-[15px] font-medium shadow-sm"
-          // onClick={() => router.push(`/reports/${enc}/new`)}  // 실제 제보 작성 페이지 생기면 연결
+        <Link
+          href={`/tipoff/${enc}`} // ⬅️ 현재 카테고리 그대로 넘김
+          className="block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-center text-[15px] font-medium shadow-sm hover:bg-neutral-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
         >
           지금 이 카테고리 소식 제보하기
-        </button>
+        </Link>
       </div>
     </section>
   );
