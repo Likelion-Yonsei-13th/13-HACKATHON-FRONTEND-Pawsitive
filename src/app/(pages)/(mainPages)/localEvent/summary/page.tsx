@@ -1,4 +1,5 @@
 import PageLayout from "@/app/components/PageLayout";
+import Link from "next/link";
 
 type SummaryCard = {
   id: string;
@@ -54,7 +55,7 @@ export default function LocalEventsSummary() {
   ];
   return (
     <PageLayout>
-      <p className="flex justify-center items-start mt-11 mb-11 text-center text-2xl font-bold">
+      <p className="w-full flex justify-center items-start mt-11 mb-11 text-center text-2xl font-bold">
         지역 행사 &gt; 오늘의 이슈 요약
       </p>
       <ul>
@@ -77,6 +78,20 @@ export default function LocalEventsSummary() {
           </li>
         ))}
       </ul>
+      <div className="flex flex-row gap-10 pt-5 mb-5 justify-center items-start">
+        <Link href="/">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
+            이전으로
+          </button>
+        </Link>
+        <Link href="/localevent">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md leading-5">
+            우리 지역 행사
+            <br />
+            자세히 보기
+          </button>
+        </Link>
+      </div>
     </PageLayout>
   );
 }

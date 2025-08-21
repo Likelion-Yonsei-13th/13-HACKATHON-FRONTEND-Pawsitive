@@ -1,4 +1,5 @@
 import PageLayout from "@/app/components/PageLayout";
+import Link from "next/link";
 
 type SummaryCard = {
   id: string;
@@ -77,6 +78,20 @@ export default function PublicsSummary() {
           </li>
         ))}
       </ul>
+      <div className="flex flex-row gap-10 pt-5 mb-5 justify-center items-start">
+        <Link href="/">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
+            이전으로
+          </button>
+        </Link>
+        <Link href="/publics">
+          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md leading-5">
+            공공 데이터
+            <br />
+            자세히 보기
+          </button>
+        </Link>
+      </div>
     </PageLayout>
   );
 }
