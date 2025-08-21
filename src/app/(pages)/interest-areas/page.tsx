@@ -118,7 +118,7 @@ export default function InterestAreasListPage() {
 
           <div className="mt-10">
             <h2 className="text-2xl font-bold text-gray-900">
-              지역 추가가 완료되었습니다.
+              관심 지역 추가가 완료되었습니다.
             </h2>
             <p className="mt-4 text-sm leading-6 text-gray-900">
               추후 ‘ 나의 지역 &gt; 지역 추가하기 ’ 에서
@@ -149,8 +149,8 @@ export default function InterestAreasListPage() {
           </div>
         </div>
 
-        <h1 className="mt-10 text-2xl font-bold text-gray-900 text-center">
-          관심 있는 지역을 선택해주세요
+        <h1 className="mt-10 text-xl font-bold text-gray-900 text-center">
+          추가로 관심 있는 지역을 선택해 주세요
         </h1>
         <p className="text-xs text-gray-700 text-center pt-2">
           부모님댁, 직장 등 자주 가는 곳도 함께 추가해 보세요

@@ -107,7 +107,7 @@ export default function InterestAreasListPage() {
 
           <div className="mt-10">
             <h2 className="text-2xl font-bold text-gray-900">
-              지역 추가가 완료되었습니다.
+              내 지역 추가가 완료되었습니다.
             </h2>
             <p className="mt-4 text-sm leading-6 text-gray-900">
               추후 ‘ 나의 지역 ’ 에서
