@@ -1,4 +1,3 @@
-// app/interest-areas/list/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,6 +6,7 @@ import { useRouter } from "next/navigation";
 // 로컬스토리지로 임시 구현
 const LS_KEY = "neston_interest_district_v1";
 const NEXT_ROUTE = "/interest-areas";
+const REQUIRED_DISTRICT = "서대문구";
 
 // 지역 더미 데이터
 const PROVINCES: Record<string, string[]> = {
@@ -57,7 +57,6 @@ const PROVINCE_ORDER = [
   "경남",
 ];
 
-// 선택 항목 타입 (단일)
 type Picked = { province: string; district: string } | null;
 
 export default function InterestAreasListPage() {
@@ -72,16 +71,16 @@ export default function InterestAreasListPage() {
     picked?.province === prov && picked?.district === d;
 
   const toggleDistrict = (prov: string, d: string) => {
-    if (isSelected(prov, d)) {
-      setPicked(null);
-    } else {
-      setPicked({ province: prov, district: d });
-    }
+    if (isSelected(prov, d)) setPicked(null);
+    else setPicked({ province: prov, district: d });
   };
+
+  // 서대문구 기준으로 데모 구현 -> 내지역은 서대문구 선택시에만 넘어감
+  const canProceed = picked?.district === REQUIRED_DISTRICT;
 
   const handleNext = () => {
     if (!success) {
-      if (!picked) return;
+      if (!canProceed) return;
       const payload = {
         list: picked ? [picked] : [],
         districts: picked ? [picked.district] : [],
@@ -142,10 +141,23 @@ export default function InterestAreasListPage() {
           이슈가 궁금한 지역을 선택해 주세요
         </h1>
 
+        {/* 안내: 서대문구 조건 */}
+        <p className="mt-2 text-xs text-center">
+          <span className="px-2 py-1 rounded bg-white/70">
+            ‘{REQUIRED_DISTRICT}’
+          </span>{" "}
+          선택 시에만 다음으로 진행할 수 있습니다.
+          <br />({REQUIRED_DISTRICT} 기준으로 구현했습니다)
+        </p>
+
         {/* 리스트 박스 */}
-        <div className="mt-9 grid grid-cols-[120px_1fr] border-1 border-gray-300 overflow-hidden bg-white">
+        {/* ❗ overflow-hidden 제거, border-1 → border, 내부 칼럼에 고정 높이 + overflow-y-auto 부여 */}
+        <div className="mt-9 grid grid-cols-[120px_1fr] border border-gray-300 bg-white">
           {/* 좌측: 시/도 */}
-          <div className="max-h-80 overflow-auto border-r border-gray-300">
+          <div
+            className="h-80 overflow-y-auto border-r border-gray-300"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {PROVINCE_ORDER.map((p) => {
               const current = p === province;
               const isPickedInThis = picked?.province === p;
@@ -171,8 +183,11 @@ export default function InterestAreasListPage() {
             })}
           </div>
 
-          {/* 우측: 구/시 (단일 토글 선택)*/}
-          <div className="max-h-80 overflow-auto">
+          {/* 우측: 구/시 (단일 토글 선택) */}
+          <div
+            className="h-80 overflow-y-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {districts.map((d) => {
               const sel = isSelected(province, d);
               return (
@@ -196,8 +211,8 @@ export default function InterestAreasListPage() {
         {/* 다음 버튼 */}
         <button
           onClick={handleNext}
-          disabled={!picked}
-          className="mt-50 mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px] disabled:opacity-50"
+          disabled={!canProceed}
+          className="mt-[50px] mb-10 w-full rounded-xl bg-white py-3 text-base font-semibold text-gray-800 shadow active:translate-y-[1px] disabled:opacity-50"
         >
           다음
         </button>

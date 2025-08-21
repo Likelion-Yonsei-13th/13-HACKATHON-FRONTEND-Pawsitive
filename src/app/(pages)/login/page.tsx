@@ -21,7 +21,7 @@ export default function LoginPage() {
       JSON.stringify({ userId, password, ts: Date.now() })
     );
 
-    router.replace("/");
+    router.replace("/interest-myarea");
   };
 
   return (
