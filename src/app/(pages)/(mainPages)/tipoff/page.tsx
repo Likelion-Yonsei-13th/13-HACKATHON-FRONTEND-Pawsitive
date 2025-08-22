@@ -15,7 +15,7 @@ export default function TipoffIndexPage() {
     <PageLayout>
       <section className="px-6 py-6">
         {/* 상단 안내 바 (연한 초록) */}
-        <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        <div className="bg-[#DBFFEA] rounded-[5px] border-[#C5F6D9] border-1 text-center text-[20px] font-semibold py-4 mb-4 h-[60px]">
           지역 소식 제보하기
         </div>
 
