@@ -13,26 +13,28 @@ const categories = [
 export default function ReportsIndexPage() {
   return (
     <PageLayout>
-      <section className="px-6 py-4">
+      <section className="px-10 py-4">
         {/* 상단 타이틀 바 */}
-        <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        <div className="bg-[#DBFFEA] rounded-[5px] border-[#C5F6D9] border-1 text-center text-[20px] font-semibold py-4 mb-10 h-[60px]">
           제보 데이터 소식
         </div>
 
         {/* 2열 카드 그리드 */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
           {categories.map((c) => (
             <Link
               key={c.key}
               href={`/reports/${encodeURIComponent(c.key)}`}
               className={[
                 "block h-[130px]",
-                "border border-[#D9D9D9] bg-white shadow-sm",
+                "border border-[#D9D9D9] bg-white shadow-md rounded-[5px]",
                 "flex items-center justify-center px-3 text-center",
-                "text-[20px] font-semibold text-neutral-900",
+                "text-[16px] font-semibold text-neutral-900",
                 "transition-colors duration-200 ease-in-out",
-                "hover:bg-[#DBFFEA]", // 기본 흰색 → hover 민트
-                "active:scale-[0.99] active:bg-neutral-50",
+                "hover:bg-[#DBFFEA]", // 마우스 오버
+                "focus-visible:bg-[#DBFFEA]", // 키보드 포커스
+                "active:scale-[0.99]",
+                "active:bg-[#DBFFEA]",
               ].join(" ")}
             >
               {c.label}
@@ -40,20 +42,6 @@ export default function ReportsIndexPage() {
           ))}
         </div>
       </section>
-      <div className="flex flex-row gap-10 pt-5 mb-5 justify-center items-start">
-        <Link href="/">
-          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md">
-            이전으로
-          </button>
-        </Link>
-        <Link href="/localevent">
-          <button className="w-[150px] h-[65px] text-16 text-center bg-white border rounded-[50px] shadow-md leading-5">
-            우리 지역 행사
-            <br />
-            자세히 보기
-          </button>
-        </Link>
-      </div>
     </PageLayout>
   );
 }

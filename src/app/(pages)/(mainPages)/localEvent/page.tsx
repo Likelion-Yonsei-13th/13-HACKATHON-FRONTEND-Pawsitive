@@ -13,28 +13,28 @@ const categories = [
 export default function LocalIndexPage() {
   return (
     <PageLayout>
-      <section className="px-6 py-4">
+      <section className="flex flex-col px-10 py-4">
         {/* 상단 타이틀 바 */}
-        <div className="bg-[#DBFFEA] text-center text-[20px] font-medium py-4 mb-4 h-[60px]">
+        <div className="bg-[#DBFFEA] rounded-[5px] border-[#C5F6D9] border-1 text-center text-[20px] font-semibold py-4 mb-10 h-[60px]">
           나의 지역 행사 확인하기
         </div>
 
         {/* 2열 카드 그리드 */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-10">
           {categories.map((c) => (
             <Link
               key={c.key}
               href={`/localevent/${encodeURIComponent(c.key)}`}
               className={[
-                "block h-[100px]",
-                "border border-[#D9D9D9] bg-white shadow-sm",
+                "block h-[130px]",
+                "border border-[#D9D9D9] bg-white shadow-md rounded-[5px]",
                 "flex items-center justify-center px-3 text-center",
                 "text-[16px] font-semibold text-neutral-900",
                 "transition-colors duration-200 ease-in-out",
-                "hover:bg-[#DBFFEA]", // 기본 흰색 → hover 민트
+                "hover:bg-[#DBFFEA]", // 마우스 오버
                 "focus-visible:bg-[#DBFFEA]", // 키보드 포커스
-                "active:bg-[#DBFFEA]", // 터치/클릭 시
-                "active:scale-[0.99] active:bg-neutral-50",
+                "active:scale-[0.99]",
+                "active:bg-[#DBFFEA]",
               ].join(" ")}
             >
               {c.label}
@@ -45,7 +45,7 @@ export default function LocalIndexPage() {
         {/* NestOn 추천 행사 보기 버튼 */}
         <Link
           href="/localevent/recommend"
-          className="block w-full bg-[#DBFFEA] text-center text-[18px] font-medium py-3 rounded-sm hover:bg-gray-300 transition-colors"
+          className="block w-full rounded-[5px] shadow-md border-1 border-gray-300 bg-white text-center text-[18px] font-medium py-3 hover:bg-gray-300 transition-colors"
         >
           NestOn 추천 행사 보기
         </Link>
