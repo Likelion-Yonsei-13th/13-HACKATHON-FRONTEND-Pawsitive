@@ -3,60 +3,13 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import AreasListBox from "./components/AreasListBox";
+import { PROVINCES, PROVINCE_ORDER } from "@/app/lib/regions";
 
 // 로컬스토리지로 임시 구현
 const LS_KEY = "neston_interest_district_v1";
 const NEXT_ROUTE = "/";
 const MAX_SELECT = 5; // 최대 5개까지만 선택하도록 함
-
-// 지역 더미 데이터
-const PROVINCES: Record<string, string[]> = {
-  서울: [
-    "강남구",
-    "강동구",
-    "강북구",
-    "강서구",
-    "관악구",
-    "광진구",
-    "구로구",
-    "금천구",
-    "노원구",
-    "도봉구",
-    "동대문구",
-    "동작구",
-    "마포구",
-    "서대문구",
-    "서초구",
-    "성동구",
-    "성북구",
-    "송파구",
-    "양천구",
-    "영등포구",
-    "용산구",
-    "은평구",
-    "종로구",
-    "중구",
-    "중랑구",
-  ],
-  경기: ["성남시 분당구", "용인시 수지구", "고양시 일산동구", "수원시 영통구"],
-  인천: ["연수구", "남동구", "미추홀구", "부평구"],
-  강원: ["춘천시", "원주시", "강릉시"],
-  충남: ["천안시", "아산시"],
-  충북: ["청주시", "충주시"],
-  경북: ["포항시", "경주시"],
-  경남: ["창원시", "김해시"],
-};
-
-const PROVINCE_ORDER = [
-  "서울",
-  "경기",
-  "인천",
-  "강원",
-  "충남",
-  "충북",
-  "경북",
-  "경남",
-];
 
 // 선택 항목 타입
 type Picked = { province: string; district: string };
@@ -65,7 +18,7 @@ export default function InterestAreasListPage() {
   const router = useRouter();
   const [province, setProvince] = useState<string>("서울");
   const [selected, setSelected] = useState<Picked[]>([]); // 복수 선택 가능
-  const [success, setSuccess] = useState(false); //다음 -> 완료화면 전환
+  const [success, setSuccess] = useState(false); // 다음 -> 완료화면 전환
 
   const districts = PROVINCES[province] ?? [];
 
@@ -86,7 +39,7 @@ export default function InterestAreasListPage() {
       );
       return;
     }
-    if (selected.length >= MAX_SELECT) return; // 최대 개수 5개로 제한
+    if (selected.length >= MAX_SELECT) return; // 최대 개수 5개 제한
     setSelected((prev) => [...prev, { province: prov, district: d }]);
   };
 
@@ -101,7 +54,7 @@ export default function InterestAreasListPage() {
       try {
         localStorage.setItem(LS_KEY, JSON.stringify(payload));
       } catch {}
-      setSuccess(true); // 완료 화면 전환 부분
+      setSuccess(true);
     } else {
       router.replace(NEXT_ROUTE);
     }
@@ -158,56 +111,16 @@ export default function InterestAreasListPage() {
           (최대 5개까지 선택 가능)
         </p>
 
-        {/* 리스트 박스 */}
-        <div className="mt-9 grid grid-cols-[120px_1fr] border-1 border-gray-300 overflow-hidden bg-white">
-          {/* 좌측: 시/도 */}
-          <div className="max-h-80 overflow-auto border-r border-gray-300">
-            {PROVINCE_ORDER.map((p) => {
-              const current = p === province;
-              const count = selectedCountByProvince.get(p) || 0;
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setProvince(p)}
-                  className={`relative block w-full px-3 py-3 text-center text-md ${
-                    current
-                      ? "bg-white text-gray-900 font-semibold"
-                      : "bg-gray-300 text-gray-500 font-light opacity-70"
-                  }`}
-                >
-                  {p}
-                  {count > 0 && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 우측: 구/시 (토글 복수 선택)*/}
-          <div className="max-h-80 overflow-auto">
-            {districts.map((d) => {
-              const sel = isSelected(province, d);
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => toggleDistrict(province, d)}
-                  className={`block w-full px-4 py-3 text-left text-sm border-b last:border-b-0 border-gray-100 ${
-                    sel
-                      ? "bg-white text-gray-900 font-semibold"
-                      : "bg-white text-gray-500 font-light opacity-70"
-                  }`}
-                >
-                  {d}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* ✅ 리스트 박스 */}
+        <AreasListBox
+          province={province}
+          setProvince={setProvince}
+          PROVINCE_ORDER={PROVINCE_ORDER}
+          districts={districts}
+          isSelected={isSelected}
+          toggleDistrict={toggleDistrict}
+          selectedCountByProvince={selectedCountByProvince}
+        />
 
         {/* 다음 버튼 */}
         <button
