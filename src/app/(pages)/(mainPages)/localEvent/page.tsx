@@ -20,7 +20,7 @@ export default function LocalIndexPage() {
         </div>
 
         {/* 2열 카드 그리드 */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-10">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-10">
           {categories.map((c) => (
             <Link
               key={c.key}
