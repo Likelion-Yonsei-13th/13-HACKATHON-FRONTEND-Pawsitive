@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { SAMPLE } from "../_data/sample";
 
-// 정렬 탭: 최신순/화제순 (샘플 데이터라 정렬 로직은 심플)
 function sortItems(
   items: (typeof SAMPLE)[keyof typeof SAMPLE],
   sort: "latest" | "hot"
 ) {
   if (sort === "hot") {
-    // 데모: 댓글 수 기준 내림차순 → 최신순 보정
     return [...items].sort((a, b) => (b.comments ?? 0) - (a.comments ?? 0));
   }
-  // 최신순(문자열이지만 YYYY.MM.DD HH:mm 포맷이므로 lexicographical 정렬 OK)
   return [...items].sort((a, b) => (b.time > a.time ? 1 : -1));
 }
 
@@ -18,23 +15,24 @@ export default async function ReportsCategoryPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ category: string }>;
-  searchParams?: { sort?: string };
+  params: { category: string };
+
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const { category } = await params;
-  const decoded = decodeURIComponent(category);
+  const decoded = decodeURIComponent(params.category);
   const items = SAMPLE[decoded as keyof typeof SAMPLE] ?? [];
 
-  const sort = (searchParams?.sort === "hot" ? "hot" : "latest") as
-    | "latest"
-    | "hot";
-  const list = sortItems(items, sort);
+  const sortRaw = searchParams?.sort;
+  const sortKey =
+    (Array.isArray(sortRaw) ? sortRaw[0] : sortRaw) === "hot"
+      ? "hot"
+      : "latest";
 
+  const list = sortItems(items, sortKey);
   const enc = encodeURIComponent(decoded);
 
   return (
     <section className="px-4 py-6">
-      {/* 상단 타이틀 + 정렬 탭 */}
       <div className="flex items-end justify-between">
         <h2 className="text-[18px] font-semibold">{decoded}</h2>
 
@@ -43,7 +41,7 @@ export default async function ReportsCategoryPage({
             href={`/reports/${enc}?sort=latest`}
             className={[
               "rounded-full border px-3 py-1",
-              sort === "latest"
+              sortKey === "latest"
                 ? "bg-neutral-900 text-white border-neutral-900"
                 : "bg-white text-neutral-700 border-neutral-300",
             ].join(" ")}
@@ -54,7 +52,7 @@ export default async function ReportsCategoryPage({
             href={`/reports/${enc}?sort=hot`}
             className={[
               "rounded-full border px-3 py-1",
-              sort === "hot"
+              sortKey === "hot"
                 ? "bg-neutral-900 text-white border-neutral-900"
                 : "bg-white text-neutral-700 border-neutral-300",
             ].join(" ")}
@@ -64,7 +62,6 @@ export default async function ReportsCategoryPage({
         </div>
       </div>
 
-      {/* 리스트 */}
       <ul className="mt-3 space-y-3">
         {list.map((r) => (
           <li key={r.id}>
@@ -72,7 +69,6 @@ export default async function ReportsCategoryPage({
               href={`/reports/${enc}/${encodeURIComponent(r.id)}`}
               className="flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm hover:bg-neutral-50"
             >
-              {/* 썸네일 */}
               <div className="grid h-[58px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-md border">
                 {r.image ? (
                   <img
@@ -85,7 +81,6 @@ export default async function ReportsCategoryPage({
                 )}
               </div>
 
-              {/* 텍스트 */}
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[15px] font-semibold">
                   {r.title}
@@ -99,10 +94,9 @@ export default async function ReportsCategoryPage({
         ))}
       </ul>
 
-      {/* 하단 CTA */}
       <div className="mt-6">
         <Link
-          href={`/tipoff/${enc}`} // ⬅️ 현재 카테고리 그대로 넘김
+          href={`/tipoff/${enc}`}
           className="block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-center text-[15px] font-medium shadow-sm hover:bg-neutral-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
         >
           지금 이 카테고리 소식 제보하기

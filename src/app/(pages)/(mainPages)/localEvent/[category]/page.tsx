@@ -1,111 +1,111 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { SAMPLE } from "../../reports/_data/sample";
 
-// 데모 데이터
-type EventItem = {
-  id: string;
-  title: string;
-  place: string;
-  date: string;
-  thumbnail?: string; // 이미지 경로가 있으면 사용
-};
+function sortItems(
+  items: (typeof SAMPLE)[keyof typeof SAMPLE],
+  sort: "latest" | "hot"
+) {
+  if (sort === "hot") {
+    return [...items].sort((a, b) => (b.comments ?? 0) - (a.comments ?? 0));
+  }
+  return [...items].sort((a, b) => (b.time > a.time ? 1 : -1));
+}
 
-const MOCK: Record<string, EventItem[]> = {
-  문화예술: [
-    {
-      id: "e1",
-      title: "서대문 클래식 나이트",
-      place: "서대문문화회관",
-      date: "2025.08.24 19:30",
-    },
-    {
-      id: "e2",
-      title: "거리 미술 전시",
-      place: "연희동 일대",
-      date: "2025.08.26 ~ 09.02",
-    },
-  ],
-  축제마켓: [
-    {
-      id: "e3",
-      title: "야시장 & 버스킹",
-      place: "충정로 야시장",
-      date: "매주 토 18:00~",
-    },
-  ],
-  스포츠레저: [
-    {
-      id: "e4",
-      title: "주말 러닝 크루",
-      place: "서대문 안산 자락길",
-      date: "2025.08.23 07:00",
-    },
-  ],
-  교육강연: [
-    {
-      id: "e5",
-      title: "AI 입문 특강",
-      place: "구립도서관 강당",
-      date: "2025.08.28 14:00",
-    },
-  ],
-  사회봉사: [
-    {
-      id: "e6",
-      title: "하천 정화 봉사",
-      place: "불광천",
-      date: "2025.08.31 10:00",
-    },
-  ],
-  상권쇼핑: [
-    {
-      id: "e7",
-      title: "상권 공동 프로모션",
-      place: "연남상권",
-      date: "2025.09.01 ~ 09.15",
-    },
-  ],
-};
-
-export default async function LocalEventCategoryPage({
+export default async function ReportsCategoryPage({
   params,
+  searchParams,
 }: {
-  // ✅ Next.js 15: params는 Promise
-  params: Promise<{ category: string }>;
+  // ✅ Promise 아님
+  params: { category: string };
+  // ✅ Next가 기대하는 타입으로
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const { category } = await params;
-  const decoded = decodeURIComponent(category);
-  const items = MOCK[decoded];
+  // ✅ await 제거
+  const decoded = decodeURIComponent(params.category);
+  const items = SAMPLE[decoded as keyof typeof SAMPLE] ?? [];
 
-  if (!items) notFound();
+  // ✅ string | string[] 처리
+  const sortRaw = searchParams?.sort;
+  const sortKey =
+    (Array.isArray(sortRaw) ? sortRaw[0] : sortRaw) === "hot"
+      ? "hot"
+      : "latest";
+
+  const list = sortItems(items, sortKey);
+  const enc = encodeURIComponent(decoded);
 
   return (
-    <section className="px-4 pb-8 py-3">
-      {/* 카드 목록 */}
-      <ul className="grid grid-cols-2 gap-3 mt-3">
-        {items.map((ev) => (
-          <li
-            key={ev.id}
-            className="rounded-xl border bg-white overflow-hidden"
-          >
-            <Link
-              href={`/localevent/${encodeURIComponent(decoded)}/${ev.id}`}
-              className="block"
-            >
-              {/* 썸네일 자리(없으면 회색 박스) */}
-              <div className="h-[100px] bg-neutral-200" />
+    <section className="px-4 py-6">
+      <div className="flex items-end justify-between">
+        <h2 className="text-[18px] font-semibold">{decoded}</h2>
 
-              <div className="p-3 space-y-1">
-                <div className="font-medium leading-snug line-clamp-2">
-                  {ev.title}
+        <div className="flex gap-2 text-sm">
+          <Link
+            href={`/reports/${enc}?sort=latest`}
+            className={[
+              "rounded-full border px-3 py-1",
+              sortKey === "latest"
+                ? "bg-neutral-900 text-white border-neutral-900"
+                : "bg-white text-neutral-700 border-neutral-300",
+            ].join(" ")}
+          >
+            최신순
+          </Link>
+          <Link
+            href={`/reports/${enc}?sort=hot`}
+            className={[
+              "rounded-full border px-3 py-1",
+              sortKey === "hot"
+                ? "bg-neutral-900 text-white border-neutral-900"
+                : "bg-white text-neutral-700 border-neutral-300",
+            ].join(" ")}
+          >
+            화제순
+          </Link>
+        </div>
+      </div>
+
+      <ul className="mt-3 space-y-3">
+        {list.map((r) => (
+          <li key={r.id}>
+            <Link
+              href={`/reports/${enc}/${encodeURIComponent(r.id)}`}
+              className="flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm hover:bg-neutral-50"
+            >
+              <div className="grid h-[58px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-md border">
+                {r.image ? (
+                  // 경고만 뜨는 <img>는 무시해도 빌드는 됨
+                  <img
+                    src={r.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-2xl">🖼️</div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[15px] font-semibold">
+                  {r.title}
                 </div>
-                <div className="text-xs text-neutral-600">{ev.place}</div>
-                <div className="text-xs text-neutral-600">{ev.date}</div>
+                <div className="mt-1 text-xs text-neutral-500">
+                  익명, {r.time} 등록
+                </div>
               </div>
             </Link>
           </li>
         ))}
       </ul>
+
+      <div className="mt-6">
+        <Link
+          href={`/tipoff/${enc}`}
+          className="block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-center text-[15px] font-medium shadow-sm hover:bg-neutral-50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+        >
+          지금 이 카테고리 소식 제보하기
+        </Link>
+      </div>
     </section>
   );
 }
