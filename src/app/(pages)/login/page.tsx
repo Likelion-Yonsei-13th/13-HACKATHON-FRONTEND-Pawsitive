@@ -25,9 +25,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
+    <div className="w-full min-h-screen flex-col justify-start items-center px-6 max-w-md pt-[30%]">
       {/* 로그인 */}
-      <div className="flex w-full min-h-screen flex-col justify-start items-center px-6 max-w-md pt-50">
+      <div className="flex flex-col items-center">
         <Image
           src="/svg/mainLogo.svg"
           alt="NestOn"

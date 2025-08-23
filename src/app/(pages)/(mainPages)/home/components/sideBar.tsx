@@ -15,7 +15,7 @@ export default function SideBar({ isOpen }: SideBarProps) {
                   rounded-r-[50px]     
                   transition-transform duration-300 ease-in-out
                   ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
-      style={{ width: "360px" }}
+      style={{ width: "75%" }}
     >
       <div className="p-6 py-30">
         <ul className="space-y-6">

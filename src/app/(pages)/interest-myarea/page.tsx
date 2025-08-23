@@ -53,9 +53,7 @@ export default function InterestAreasListPage() {
     return (
       <div className="min-h-screen w-full bg-[#DBFFEA] flex justify-center px-4 py-8">
         <div className="w-full max-w-sm flex flex-col p-5">
-          <div className="text-2xl font-semibold text-mainBrown pb-10">
-            NestOn
-          </div>
+          <img src="/svg/NestOn.svg" alt="NestOn" className="w-[25%] pt-10" />
           <div className="mt-10">
             <h2 className="text-2xl font-bold text-gray-900">
               내 지역 추가가 완료되었습니다.

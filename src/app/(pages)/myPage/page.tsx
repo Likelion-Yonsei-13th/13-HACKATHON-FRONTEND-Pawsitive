@@ -1,6 +1,7 @@
 "use client";
 import PageLayout from "@/app/components/PageLayout";
 import { data as users } from "@/app/lib/data";
+import Link from "next/link";
 
 export default function MyPage() {
   const user = users.find((u) => u.id === 1);
@@ -15,26 +16,25 @@ export default function MyPage() {
         </div>
 
         {/* 상세 리스트 */}
-        <div>
-          <ul className="space-y-10">
-            {[
-              "개인정보 관리",
-              "알림 설정",
-              "고객센터 / 운영정책",
-              "탈퇴하기",
-            ].map((label) => (
-              <li
-                key={label}
-                className="
+        <div className="flex flex-col items-start gap-10">
+          <Link href={"/mypage/profile"}>
+            <button
+              className="
         relative ml-6 pl-4 text-xl
         before:content-[''] before:absolute before:left-0 before:top-0
-        before:w-2 before:h-8 before:bg-black
-      "
-              >
-                <button onClick={() => console.log("작동")}>{label}</button>
-              </li>
-            ))}
-          </ul>
+        before:w-2 before:h-8 before:bg-black"
+            >
+              개인정보 관리
+            </button>
+          </Link>
+          <button
+            className="
+        relative ml-6 pl-4 text-xl
+        before:content-[''] before:absolute before:left-0 before:top-0
+        before:w-2 before:h-8 before:bg-black"
+          >
+            로그아웃
+          </button>
         </div>
       </div>
     </PageLayout>
