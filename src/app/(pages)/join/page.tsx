@@ -2,67 +2,65 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { http } from "@/app/lib/http";
 
-// =====================
-// Mock helpers (no backend)
-// =====================
+// 공통 응답 타입
+type ApiSuccess<T> = {
+  status: number;
+  success: true;
+  message: string;
+  data: T;
+};
+type ApiFail = { status: number; success: false; message: string; data: null };
+type ApiResponse<T> = ApiSuccess<T> | ApiFail;
 
-const MOCK_DELAY = 500;
-const RESERVED_USERNAMES = ["admin", "root", "test", "user"];
-
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
+function toErrorMessage(err: unknown) {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return "알 수 없는 오류가 발생했습니다.";
+  }
 }
 
-async function mockCheckUsername(
-  username: string
-): Promise<{ exists: boolean }> {
-  await sleep(MOCK_DELAY);
-  const exists =
-    RESERVED_USERNAMES.includes(username.toLowerCase()) ||
-    username.toLowerCase().endsWith("01");
-  return { exists };
-}
+// 엔드포인트들(서버 스펙에 맞게 필요시 수정)
+const EP = {
+  // ⚠️ 쿼리스트링은 ?username=... (슬래시 X)
+  checkUsername: (username: string) =>
+    `/api/user/check-username?username=${encodeURIComponent(username)}`,
+  sendSms: `/api/user/sms/send`,
+  verifySms: `/api/user/sms/verify`,
+  signup: `/api/user/signup`,
+  afterSignupRedirect: "/login",
+};
 
-function randomCode(len = 6) {
-  const s = Array.from({ length: len }, () =>
-    Math.floor(Math.random() * 10)
-  ).join("");
-  return s.padStart(len, "0");
-}
-
-// =====================
-// Page
-// =====================
 export default function SignupPage() {
   const router = useRouter();
 
   // form states
-  const [name, setName] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [usernameChecked, setUsernameChecked] = useState<null | boolean>(null);
-  const [checkingId, setCheckingId] = useState<boolean>(false);
+  const [checkingId, setCheckingId] = useState(false);
 
-  const [password, setPassword] = useState<string>("");
-  const [password2, setPassword2] = useState<string>("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
 
-  const [phone, setPhone] = useState<string>("");
+  const [phone, setPhone] = useState("");
   const phoneDigits = useMemo(() => phone.replace(/\D/g, ""), [phone]);
 
-  const [birth, setBirth] = useState<string>(""); // YYYY-MM-DD | ""
+  const [birth, setBirth] = useState("");
 
-  // SMS mock states
-  const [smsCode, setSmsCode] = useState<string>("");
-  const [serverCode, setServerCode] = useState<string>("");
-  const [smsSent, setSmsSent] = useState<boolean>(false);
-  const [sendingSms, setSendingSms] = useState<boolean>(false);
-  const [smsVerified, setSmsVerified] = useState<boolean>(false);
-  const [resendLeft, setResendLeft] = useState<number>(0); // seconds
+  const [smsCode, setSmsCode] = useState("");
+  const [smsSent, setSmsSent] = useState(false);
+  const [sendingSms, setSendingSms] = useState(false);
+  const [smsVerified, setSmsVerified] = useState(false);
+  const [resendLeft, setResendLeft] = useState(0);
 
-  // feedback
   const [error, setError] = useState<string | null>(null);
   const [okMsg, setOkMsg] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // validators
   const usernameOk = useMemo(
@@ -83,9 +81,7 @@ export default function SignupPage() {
     [birth]
   );
 
-  // ✅ 비밀번호가 일치해야 휴대폰 인증 단계 활성화
   const phoneStepEnabled = passwordMatch;
-
   const canSendSms =
     phoneStepEnabled &&
     phoneOk &&
@@ -95,26 +91,26 @@ export default function SignupPage() {
   const canVerifySms =
     phoneStepEnabled && smsSent && smsCode.trim().length >= 4 && !smsVerified;
 
-  // resend countdown
+  // resend 타이머
   useEffect(() => {
     if (!smsSent || resendLeft <= 0) return;
     const t = setInterval(() => setResendLeft((s) => Math.max(0, s - 1)), 1000);
     return () => clearInterval(t);
   }, [smsSent, resendLeft]);
 
-  // 🔁 비밀번호가 다시 불일치하면 휴대폰 인증 UI/상태 초기화
+  // 비밀번호 불일치로 돌아가면 SMS 상태 초기화
   useEffect(() => {
     if (!phoneStepEnabled) {
       setSmsSent(false);
       setSmsVerified(false);
       setResendLeft(0);
       setSmsCode("");
-      setServerCode("");
       setOkMsg(null);
     }
   }, [phoneStepEnabled]);
 
-  // id check (mock)
+  // ---- axios 연동 ----
+  type UsernameCheckData = { exists: boolean } | { available: boolean };
   const onCheckUsername = async () => {
     setError(null);
     setOkMsg(null);
@@ -124,17 +120,29 @@ export default function SignupPage() {
       return;
     }
     setCheckingId(true);
-    const res = await mockCheckUsername(username);
-    const ok = !res.exists;
-    setUsernameChecked(ok);
-    if (ok) setOkMsg("사용 가능한 아이디입니다.");
-    else setError("이미 사용 중인 아이디입니다.");
-    setCheckingId(false);
+    try {
+      const { data: json } = await http.get<ApiResponse<UsernameCheckData>>(
+        EP.checkUsername(username)
+      );
+      if (!json.success || !json.data)
+        throw new Error(json.message || "중복 확인 실패");
+
+      const exists =
+        "exists" in json.data ? json.data.exists : !json.data.available;
+      const ok = !exists;
+      setUsernameChecked(ok);
+      if (ok) setOkMsg("사용 가능한 아이디입니다.");
+      else setError("이미 사용 중인 아이디입니다.");
+    } catch (e) {
+      setUsernameChecked(false);
+      setError(toErrorMessage(e));
+    } finally {
+      setCheckingId(false);
+    }
   };
 
-  // send sms (mock)
   const onSendSms = async () => {
-    if (!phoneStepEnabled) return; // 가드
+    if (!phoneStepEnabled) return;
     setError(null);
     setOkMsg(null);
     if (!phoneOk) {
@@ -142,37 +150,52 @@ export default function SignupPage() {
       return;
     }
     setSendingSms(true);
-    await sleep(MOCK_DELAY);
-    const code = randomCode(6);
-    setServerCode(code);
-    setSmsSent(true);
-    setSmsVerified(false);
-    setResendLeft(180);
-    setOkMsg(`인증번호를 발송했습니다. (모의 코드: ${code})`);
-    setSendingSms(false);
-  };
-
-  // verify sms (mock)
-  const onVerifySms = async () => {
-    if (!phoneStepEnabled) return; // 가드
-    setError(null);
-    setOkMsg(null);
-    if (!smsSent) return;
-    if (smsCode.trim() === serverCode && serverCode !== "") {
-      await sleep(200);
-      setSmsVerified(true);
-      setResendLeft(0); // 인증 성공 시 카운트다운 종료
-      setOkMsg("휴대폰 인증이 완료되었습니다.");
-    } else {
+    try {
+      const { data: json } = await http.post<ApiResponse<unknown>>(EP.sendSms, {
+        phone: phoneDigits,
+      });
+      if (!json.success) throw new Error(json.message || "인증번호 발송 실패");
+      setSmsSent(true);
       setSmsVerified(false);
-      setError("인증번호가 일치하지 않습니다.");
-      setResendLeft(0); // ❗ 실패 시 즉시 재발송 가능하도록 활성화
-      // smsSent는 그대로 true이므로 버튼 라벨이 '재발송'으로 바뀝니다.
+      setResendLeft(180);
+      setOkMsg("인증번호를 발송했습니다.");
+    } catch (e) {
+      setError(toErrorMessage(e));
+    } finally {
+      setSendingSms(false);
     }
   };
 
-  // submit → /login (no backend)
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onVerifySms = async () => {
+    if (!phoneStepEnabled) return;
+    setError(null);
+    setOkMsg(null);
+    if (!smsSent) return;
+    try {
+      const { data: json } = await http.post<
+        ApiResponse<{ verified?: boolean }>
+      >(EP.verifySms, { phone: phoneDigits, code: smsCode.trim() });
+      if (!json.success) throw new Error(json.message || "인증 확인 실패");
+
+      const verified = json.data?.verified ?? json.success;
+      if (verified) {
+        setSmsVerified(true);
+        setResendLeft(0);
+        setOkMsg("휴대폰 인증이 완료되었습니다.");
+      } else {
+        setSmsVerified(false);
+        setError("인증번호가 일치하지 않습니다.");
+        setResendLeft(0);
+      }
+    } catch (e) {
+      setSmsVerified(false);
+      setError(toErrorMessage(e));
+      setResendLeft(0);
+    }
+  };
+
+  type SignupData = { access?: string } | null;
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setOkMsg(null);
@@ -188,10 +211,33 @@ export default function SignupPage() {
       return setError("생년월일 형식을 확인해 주세요 (YYYY-MM-DD).");
 
     setSubmitting(true);
-    // 백엔드 없이 바로 /login으로 이동
-    setTimeout(() => {
-      router.replace("/login");
-    }, 400);
+    try {
+      // ⚠️ 백엔드 스펙에 맞춰 왼쪽 키 이름을 조정하세요.
+      const body = {
+        name: name.trim(),
+        username: username.trim(),
+        password,
+        phone_number: phoneDigits,
+        birth_date: birth,
+      };
+
+      const { data: json } = await http.post<ApiResponse<SignupData>>(
+        EP.signup,
+        body
+      );
+      if (!json.success) throw new Error(json.message || "회원가입 실패");
+
+      const access = json.data?.access;
+      if (access) {
+        localStorage.setItem("access_token", access);
+        return router.replace("/mypage");
+      }
+      router.replace(EP.afterSignupRedirect);
+    } catch (e) {
+      setError(toErrorMessage(e));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -296,7 +342,7 @@ export default function SignupPage() {
           )}
         </div>
 
-        {/* 휴대폰 + 인증 (비밀번호 일치 시 활성화) */}
+        {/* 휴대폰 + 인증 */}
         <div
           className={`space-y-1 transition-opacity ${
             phoneStepEnabled ? "" : "opacity-50"
@@ -388,7 +434,7 @@ export default function SignupPage() {
           )}
         </div>
 
-        {/* 제출 버튼 — 맨 아래 */}
+        {/* 제출 버튼 */}
         <button
           type="submit"
           disabled={submitting}
@@ -404,5 +450,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-// 나중에 백엔드 준비되면 mockCheckUsername, onSendSms, onVerifySms 부분만 실제 API 호출로 교체
