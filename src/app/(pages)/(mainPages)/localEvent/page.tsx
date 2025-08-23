@@ -45,7 +45,7 @@ export default function LocalIndexPage() {
         {/* NestOn 추천 행사 보기 버튼 */}
         <Link
           href="/localevent/recommend"
-          className="block w-full rounded-[5px] shadow-md border-1 border-gray-300 bg-white text-center text-[18px] font-medium py-3 hover:bg-gray-300 transition-colors"
+          className="block w-full rounded-[5px] shadow-md border-1 border-gray-300 bg-white text-center text-[18px] font-medium py-3 hover:bg-[#DBFFEA] transition-colors"
         >
           NestOn 추천 행사 보기
         </Link>

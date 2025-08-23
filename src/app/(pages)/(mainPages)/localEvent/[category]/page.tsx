@@ -1,3 +1,4 @@
+// app/localevent/[category]/page.tsx  ← 폴더/경로의 대소문자와 링크를 반드시 일치시키세요.
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -7,7 +8,7 @@ type EventItem = {
   title: string;
   place: string;
   date: string;
-  thumbnail?: string; // 이미지 경로가 있으면 사용
+  thumbnail?: string;
 };
 
 const MOCK: Record<string, EventItem[]> = {
@@ -67,34 +68,33 @@ const MOCK: Record<string, EventItem[]> = {
   ],
 };
 
+// ✅ Next.js 15: params는 Promise이므로 타입/구현 모두 비동기로 작성
 export default async function LocalEventCategoryPage({
   params,
 }: {
-  // ✅ Next.js 15: params는 Promise
   params: Promise<{ category: string }>;
 }) {
-  const { category } = await params;
+  const { category } = await params; // ← 반드시 await
   const decoded = decodeURIComponent(category);
   const items = MOCK[decoded];
 
-  if (!items) notFound();
+  if (!items) notFound(); // ← 세그먼트 내에서 OK
 
   return (
     <section className="px-4 pb-8 py-3">
-      {/* 카드 목록 */}
       <ul className="grid grid-cols-2 gap-3 mt-3">
         {items.map((ev) => (
           <li
             key={ev.id}
             className="rounded-xl border bg-white overflow-hidden"
           >
+            {/* ⚠️ 폴더 이름과 정확히 일치: /localevent/... */}
             <Link
               href={`/localevent/${encodeURIComponent(decoded)}/${ev.id}`}
               className="block"
             >
-              {/* 썸네일 자리(없으면 회색 박스) */}
+              {/* 썸네일 영역(없으면 플레이스홀더) */}
               <div className="h-[100px] bg-neutral-200" />
-
               <div className="p-3 space-y-1">
                 <div className="font-medium leading-snug line-clamp-2">
                   {ev.title}
