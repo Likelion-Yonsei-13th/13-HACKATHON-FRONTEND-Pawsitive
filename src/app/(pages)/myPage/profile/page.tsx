@@ -14,8 +14,8 @@ export default function SettingsPage() {
   // 더미 회원 데이터
   const initialUser = useMemo<User>(
     () => ({
-      name: "김하늘",
-      username: "haneul_kim",
+      name: "이지호",
+      username: "jiho_aaa",
       phone: "010-1234-5678",
       birth: "1995-04-12",
     }),
@@ -137,13 +137,8 @@ export default function SettingsPage() {
 
   return (
     <PageLayout pageTitle="마이페이지 > 개인정보 관리">
-      <div className="min-h-[100dvh] bg-white py-8">
+      <div className="min-h-screen pb-20 px-5 py-5">
         <div className="mx-auto w-full max-w-3xl px-4">
-          <h1 className="text-2xl font-semibold">개인정보 관리</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            최소 구성 데모 + 인증 만료/재전송 로직 추가
-          </p>
-
           {msg && (
             <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               {msg}
@@ -152,83 +147,100 @@ export default function SettingsPage() {
 
           {/* 기본 정보 */}
           <section className="mt-6">
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">이름</span>
-                <input
-                  className="rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, name: e.target.value }))
-                  }
-                  placeholder="이름"
-                  disabled={!isEditing}
-                />
-              </label>
-
-              <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">아이디</span>
-                <input
-                  className="rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, username: e.target.value }))
-                  }
-                  placeholder="아이디"
-                  disabled={!isEditing}
-                />
-              </label>
-
-              <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">전화번호</span>
-                <input
-                  className={`rounded-md border px-3 py-2 outline-none focus:ring-2 disabled:bg-gray-50 disabled:text-gray-500 ${
-                    isValidPhone(form.phone)
-                      ? "focus:ring-gray-900"
-                      : "border-red-300 focus:ring-red-500"
-                  }`}
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      phone: formatKoreanPhone(e.target.value),
-                    }))
-                  }
-                  inputMode="tel"
-                  placeholder="010-0000-0000"
-                  disabled={!isEditing}
-                />
-                {!isValidPhone(form.phone) && isEditing && (
-                  <span className="text-xs text-red-500">
-                    휴대폰 번호 형식을 확인해 주세요.
+            <div className="space-y-3">
+              {/* 이름 */}
+              <label htmlFor="name" className="block">
+                <div className="flex h-11 w-full items-center rounded-md border bg-white">
+                  <span className="w-20 shrink-0 whitespace-nowrap px-3 text-sm text-gray-600 border-r">
+                    이름
                   </span>
-                )}
+                  <input
+                    id="name"
+                    className="flex-1 px-3 outline-none bg-transparent
+                   disabled:bg-gray-50 disabled:text-gray-500"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, name: e.target.value }))
+                    }
+                    placeholder="이름"
+                    disabled={!isEditing}
+                  />
+                </div>
               </label>
 
-              <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">생년월일</span>
-                <input
-                  type="date"
-                  className="rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
-                  value={form.birth}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, birth: e.target.value }))
-                  }
-                  disabled={!isEditing}
-                />
+              {/* 아이디 */}
+              <label htmlFor="username" className="block">
+                <div className="flex h-11 w-full items-center rounded-md border bg-white">
+                  <span className="w-20 shrink-0 whitespace-nowrap px-3 text-sm text-gray-600 border-r">
+                    아이디
+                  </span>
+
+                  <input
+                    id="username"
+                    className="flex-1 px-3 outline-none bg-transparent
+                   disabled:bg-gray-50 disabled:text-gray-500"
+                    value={form.username}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, username: e.target.value }))
+                    }
+                    placeholder="아이디"
+                    disabled={!isEditing}
+                  />
+                </div>
+              </label>
+
+              {/* 연락처 */}
+              <label htmlFor="phone" className="block">
+                <div className="flex h-11 w-full items-center rounded-md border bg-white">
+                  <span className="w-20 shrink-0 whitespace-nowrap px-3 text-sm text-gray-600 border-r">
+                    연락처
+                  </span>
+                  <input
+                    id="phone"
+                    inputMode="tel"
+                    className="flex-1 px-3 outline-none bg-transparent
+                   disabled:bg-gray-50 disabled:text-gray-500"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, phone: e.target.value }))
+                    }
+                    placeholder="010-0000-0000"
+                    disabled={!isEditing}
+                  />
+                </div>
+              </label>
+
+              {/* 생년월일 */}
+              <label htmlFor="birth" className="block">
+                <div className="flex h-11 w-full items-center rounded-md border bg-white">
+                  <span className="w-20 shrink-0 whitespace-nowrap px-3 text-sm text-gray-600 border-r">
+                    생년월일
+                  </span>
+                  <input
+                    id="birth"
+                    type="date"
+                    className="flex-1 px-3 outline-none bg-transparent
+                   disabled:bg-gray-50 disabled:text-gray-500"
+                    value={form.birth}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, birth: e.target.value }))
+                    }
+                    disabled={!isEditing}
+                  />
+                </div>
               </label>
             </div>
 
-            {/* 버튼 영역: 편집 중/읽기 전용 전환 */}
+            {/* 버튼 영역 */}
             {isEditing ? (
               <div className="mt-6 flex flex-wrap gap-2">
                 <button
                   onClick={saveProfile}
                   disabled={!isChanged || !isValidPhone(form.phone)}
-                  className={`rounded-md px-4 py-2 text-sm text-white transition ${
+                  className={`rounded-md px-4 py-2 text-sm transition shadow-md ${
                     !isChanged || !isValidPhone(form.phone)
-                      ? "bg-gray-300"
-                      : "bg-gray-900 hover:bg-black"
+                      ? "bg-gray-300 text-white"
+                      : "bg-[#DBFFEA] text-black"
                   }`}
                 >
                   변경사항 저장
@@ -236,7 +248,7 @@ export default function SettingsPage() {
                 <button
                   onClick={resetProfile}
                   disabled={!isChanged}
-                  className={`rounded-md border px-4 py-2 text-sm transition ${
+                  className={`rounded-md border px-4 py-2 text-sm transition shadow-md ${
                     !isChanged
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-gray-700 hover:bg-gray-50"
@@ -249,7 +261,7 @@ export default function SettingsPage() {
               <div className="mt-6">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="rounded-md px-4 py-2 text-sm text-white transition bg-gray-900 hover:bg-black"
+                  className="rounded-md px-4 py-2 text-sm transition shadow-md bg-[#DBFFEA] text-black"
                 >
                   다시 변경하기
                 </button>
@@ -260,21 +272,22 @@ export default function SettingsPage() {
           {/* 비밀번호 변경 */}
           <section className="mt-10">
             <h2 className="text-lg font-medium">비밀번호 변경</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500">
               비밀번호 변경 전 본인 확인을 위해 휴대폰 번호 인증이 필요합니다.
             </p>
 
             {/* 휴대폰 인증 */}
             <div className="mt-4 grid grid-cols-1 gap-3">
               <div>
-                <label className="text-sm text-gray-600">휴대폰 번호</label>
-                <div className="mt-1 flex gap-2">
+                <label className="text-sm text-gray-800">휴대폰 번호</label>
+                <div className="mt-1 flex items-center gap-2">
                   <input
-                    className={`flex-1 rounded-md border px-3 py-2 outline-none focus:ring-2 ${
-                      isValidPhone(verifyPhone)
-                        ? "focus:ring-gray-900"
-                        : "border-red-300 focus:ring-red-500"
-                    }`}
+                    className={`flex-1 h-11 rounded-md border border-gray-300 bg-white px-3
+                outline-none focus:ring-1 ${
+                  isValidPhone(verifyPhone)
+                    ? "focus:ring-gray-300"
+                    : "border-red-300"
+                }`}
                     value={verifyPhone}
                     onChange={(e) =>
                       setVerifyPhone(formatKoreanPhone(e.target.value))
@@ -282,9 +295,11 @@ export default function SettingsPage() {
                     inputMode="tel"
                     placeholder="010-0000-0000"
                   />
+
                   <button
                     onClick={sendCode}
-                    className="whitespace-nowrap rounded-md px-4 py-2 text-sm text-white transition bg-gray-900 hover:bg-black"
+                    className="h-11 inline-flex items-center justify-center rounded-md px-4 text-sm bg-[#DBFFEA] text-black
+               shadow-md focus:outline-none "
                   >
                     {hasSent ? "재전송" : "인증번호 받기"}
                   </button>
@@ -296,13 +311,12 @@ export default function SettingsPage() {
                 )}
                 {hasSent && (
                   <p className="mt-2 text-xs text-gray-500">
-                    (데모) 전송된 인증번호:{" "}
-                    <span className="font-mono">{sentCode}</span>
+                    인증번호: <span className="font-mono">{sentCode}</span>
                     {expireAt && !codeExpired && (
                       <span className="ml-1">— {remainingSec}초 내 입력</span>
                     )}
                     {codeExpired && (
-                      <span className="ml-1 text-red-600">
+                      <span className="ml-1 text-red-500">
                         — 만료됨, 재전송을 눌러 새 코드를 받으세요
                       </span>
                     )}
@@ -311,10 +325,11 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">인증번호 입력</label>
+                <label className="text-sm text-gray-800">인증번호 입력</label>
                 <div className="mt-1 flex gap-2">
                   <input
-                    className="flex-1 rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="flex-1 h-11 rounded-md border border-gray-300 bg-white px-3
+                outline-none focus:ring-1 focus:ring-gray-300"
                     value={codeInput}
                     onChange={(e) =>
                       setCodeInput(
@@ -327,7 +342,8 @@ export default function SettingsPage() {
                   />
                   <button
                     onClick={confirmCode}
-                    className="whitespace-nowrap rounded-md border px-4 py-2 text-sm transition hover:bg-gray-50 disabled:opacity-60"
+                    className="h-11 inline-flex items-center justify-center rounded-md px-4 text-sm bg-[#DBFFEA] text-black
+               shadow-md focus:outline-none"
                     disabled={codeExpired}
                   >
                     확인
@@ -346,10 +362,11 @@ export default function SettingsPage() {
             {/* 새 비밀번호 */}
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">새 비밀번호</span>
+                <span className="text-sm text-gray-800">새 비밀번호</span>
                 <input
                   type="password"
-                  className="rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50"
+                  className="rounded-md border px-3 py-2 border-gray-300 bg-white
+                outline-none focus:ring-1 focus:ring-gray-300"
                   value={pw1}
                   onChange={(e) => setPw1(e.target.value)}
                   disabled={!verified}
@@ -361,7 +378,7 @@ export default function SettingsPage() {
                       key={r.label}
                       className={`rounded-full px-2 py-0.5 ${
                         r.ok(pw1)
-                          ? "bg-emerald-100 text-emerald-700"
+                          ? "bg-emerald-100 text-black"
                           : "bg-gray-100 text-gray-500"
                       }`}
                     >
@@ -372,10 +389,11 @@ export default function SettingsPage() {
               </label>
 
               <label className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600">새 비밀번호 확인</span>
+                <span className="text-sm text-gray-800">새 비밀번호 확인</span>
                 <input
                   type="password"
-                  className="rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-gray-900 disabled:bg-gray-50"
+                  className="rounded-md border px-3 py-2 border-gray-300 bg-white
+                outline-none focus:ring-1 focus:ring-gray-300"
                   value={pw2}
                   onChange={(e) => setPw2(e.target.value)}
                   disabled={!verified}
@@ -392,20 +410,14 @@ export default function SettingsPage() {
             <button
               onClick={changePassword}
               disabled={!verified || !pwValid || !pwMatch}
-              className={`mt-6 w-full rounded-md px-4 py-2 text-sm text-white transition ${
+              className={`mt-6 w-full rounded-md px-4 py-2 text-sm shadow-md transition ${
                 !verified || !pwValid || !pwMatch
-                  ? "bg-gray-300"
-                  : "bg-gray-900 hover:bg-black"
+                  ? "bg-gray-100 text-gray-500"
+                  : "bg-[#DBFFEA] text-black"
               }`}
             >
               비밀번호 변경
             </button>
-
-            <p className="mt-3 text-xs text-gray-500">
-              * 데모: 인증 성공 시 곧바로 비밀번호 변경이 가능하도록
-              구성했습니다. 실제 환경에서는 최근 인증 여부(예: 5분 이내) 체크 및
-              서버 검증을 권장합니다.
-            </p>
           </section>
         </div>
       </div>
