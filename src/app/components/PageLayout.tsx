@@ -20,7 +20,7 @@ export default function PageLayout({ pageTitle, children }: PageLayoutProps) {
       <NavBar onMenuClick={toggleSidebar} pageTitle={pageTitle} />
       <main
         id="main-layout"
-        className="relative mx-auto min-w-[320px] max-w-[500px] w-full overflow-x-hidden"
+        className="relative mx-auto w-full overflow-x-hidden"
       >
         <SideBar isOpen={isSidebarOpen} />
         <div className="w-full">
