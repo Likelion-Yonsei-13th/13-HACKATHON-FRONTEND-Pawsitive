@@ -18,16 +18,16 @@ export default async function ReportsCategoryPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ category: string }>;
-  searchParams?: { sort?: string };
+  params: Promise<{ category: string }>; // ✅ Next 15: Promise 타입
+  searchParams: Promise<{ sort?: string }>; // ✅ Next 15: Promise 타입
 }) {
-  const { category } = await params;
+  const { category } = await params; // ✅ await로 해제
+  const { sort: sortRaw } = (await searchParams) ?? {}; // ✅ await로 해제
+
   const decoded = decodeURIComponent(category);
   const items = SAMPLE[decoded as keyof typeof SAMPLE] ?? [];
 
-  const sort = (searchParams?.sort === "hot" ? "hot" : "latest") as
-    | "latest"
-    | "hot";
+  const sort = (sortRaw === "hot" ? "hot" : "latest") as "latest" | "hot";
   const list = sortItems(items, sort);
 
   const enc = encodeURIComponent(decoded);
