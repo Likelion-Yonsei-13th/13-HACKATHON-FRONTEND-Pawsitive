@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  "ignorePatterns": ["**/.next/**", "next-env.d.ts"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.eslint.json",
+    "tsconfigRootDir": "."
+  },
+  "overrides": [
+    {
+      "files": ["**/*.d.ts", "**/.next/types/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error"
+  }
+}
