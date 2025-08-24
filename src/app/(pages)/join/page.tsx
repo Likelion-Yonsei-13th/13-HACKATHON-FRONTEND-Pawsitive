@@ -123,6 +123,7 @@ export default function SignupPage() {
         name: name.trim(),
         username: username.trim(),
         password,
+        password2,
         phone_number: phoneDigits, // ← 인증 없이 저장
         birth_date: birth,
       };

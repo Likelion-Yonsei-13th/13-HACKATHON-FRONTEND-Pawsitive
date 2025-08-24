@@ -17,7 +17,6 @@ const API_BASE = normalizeBase(RAW);
 
 const isBrowser = typeof window !== "undefined";
 
-// ✅ 브라우저에서는 기본적으로 같은 오리진 사용
 export const http = axios.create({
   baseURL: isBrowser ? "" : API_BASE,
   withCredentials: true,
@@ -25,7 +24,6 @@ export const http = axios.create({
   validateStatus: () => true,
 });
 
-// ✅ `/api/`로 시작하면 반드시 같은 오리진으로 보내기
 http.interceptors.request.use((config) => {
   const url = String(config.url ?? "");
   if (isBrowser && url.startsWith("/api/")) {
@@ -34,7 +32,6 @@ http.interceptors.request.use((config) => {
   return config;
 });
 
-// (선택) 이 엔드포인트는 인증 필요 없으면 프리플라이트 줄이기
 const NO_AUTH = [/^\/api\/user\/check-username(?:\?|$)/];
 http.interceptors.request.use((config) => {
   const url = String(config.url ?? "");
