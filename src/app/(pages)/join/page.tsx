@@ -100,7 +100,8 @@ export default function SignupPage() {
     }
   };
 
-  // ---- 제출 ----
+  const CONSENT_KEY = "neston_consent_v1";
+
   type SignupData = { access?: string } | null;
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -115,17 +116,34 @@ export default function SignupPage() {
     if (!phoneOk) return setError("휴대폰 번호 형식을 확인해 주세요.");
     if (!birthOk)
       return setError("생년월일 형식을 확인해 주세요 (YYYY-MM-DD).");
-
+    let consent: any = null;
+    try {
+      const raw = localStorage.getItem(CONSENT_KEY);
+      if (raw) consent = JSON.parse(raw);
+    } catch {}
+    if (
+      !(
+        consent?.required &&
+        consent?.terms &&
+        consent?.privacy &&
+        consent?.community
+      )
+    ) {
+      return router.replace("/consent");
+    }
     setSubmitting(true);
     try {
-      // 서버 스펙에 맞춰 key 구성
       const body = {
         name: name.trim(),
         username: username.trim(),
         password,
         password2,
-        phone_number: phoneDigits, // ← 인증 없이 저장
+        phone_number: phoneDigits,
         birth_date: birth,
+        location_services_agreed: consent.required,
+        marketing_push_agreed: consent.community, // 커뮤니티 → marketing_push_agreed
+        terms_agreed: consent.terms,
+        privacy_agreed: consent.privacy,
       };
 
       const { data: json } = await http.post<ApiResponse<SignupData>>(
