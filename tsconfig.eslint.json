@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "app/**/*",
+    "src/**/*",
+    "pages/**/*",
+    "components/**/*",
+    "middleware.ts",
+    "next-env.d.ts"
+  ],
+  "exclude": ["node_modules", ".next", "dist", "build"]
+}
