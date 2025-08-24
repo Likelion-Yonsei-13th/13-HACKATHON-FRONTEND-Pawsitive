@@ -18,15 +18,6 @@ export default function ConsentPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalId, setModalId] = useState<PolicyId | null>(null);
 
-  const openModal = (id: PolicyId) => {
-    setModalId(id);
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalId(null);
-  };
-
   useEffect(() => {
     try {
       if (localStorage.getItem(AUTH_KEY)) {
@@ -40,8 +31,6 @@ export default function ConsentPage() {
   }, [router]);
 
   const all = requiredAgree && termsAgree && privacyAgree && communityAgree;
-  const allRequired =
-    requiredAgree && termsAgree && privacyAgree && communityAgree;
 
   const toggleAll = () => {
     const next = !all;
@@ -51,13 +40,13 @@ export default function ConsentPage() {
     setCommunityAgree(next);
   };
 
+  // ✅ API 호출 없이 로컬 저장 → /join 이동
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!allRequired) return;
-
+    if (!all) return;
     try {
       localStorage.setItem(
-        CONSENT_KEY,
+        "neston_consent_v1",
         JSON.stringify({
           required: requiredAgree,
           terms: termsAgree,
@@ -67,7 +56,6 @@ export default function ConsentPage() {
         })
       );
     } catch {}
-
     router.replace("/join");
   };
 
@@ -110,7 +98,7 @@ export default function ConsentPage() {
 
             <hr className="my-5" />
 
-            {/* 이용약관 동의 */}
+            {/* 이용약관 (필수) */}
             <label className="flex flex-row items-start gap-4 cursor-pointer">
               <input
                 type="checkbox"
@@ -123,7 +111,10 @@ export default function ConsentPage() {
                 <span className="font-medium">이용약관 동의 (필수)</span>
                 <span
                   className="mt-2 font-medium text-[12px] underline text-gray-500 cursor-pointer"
-                  onClick={() => openModal("terms")}
+                  onClick={() => {
+                    setModalId("terms");
+                    setModalOpen(true);
+                  }}
                 >
                   자세히 보기
                 </span>
@@ -134,7 +125,7 @@ export default function ConsentPage() {
               </span>
             </label>
 
-            {/* 위치기반 약관 */}
+            {/* 위치기반 (필수) */}
             <label className="flex flex-row items-start gap-4 cursor-pointer">
               <input
                 type="checkbox"
@@ -149,7 +140,10 @@ export default function ConsentPage() {
                 </span>
                 <span
                   className="mt-2 font-medium text-[12px] underline text-gray-500 cursor-pointer"
-                  onClick={() => openModal("location")}
+                  onClick={() => {
+                    setModalId("location");
+                    setModalOpen(true);
+                  }}
                 >
                   자세히 보기
                 </span>
@@ -160,7 +154,7 @@ export default function ConsentPage() {
               </span>
             </label>
 
-            {/* 개인정보 처리방침 동의 */}
+            {/* 개인정보 (필수) */}
             <label className="flex flex-row items-start gap-4 cursor-pointer">
               <input
                 type="checkbox"
@@ -175,19 +169,20 @@ export default function ConsentPage() {
                 </span>
                 <span
                   className="mt-2 font-medium text-[12px] underline text-gray-500 cursor-pointer"
-                  onClick={() => openModal("privacy")}
+                  onClick={() => {
+                    setModalId("privacy");
+                    setModalOpen(true);
+                  }}
                 >
                   자세히 보기
                 </span>
                 <p className="mt-1 text-sm text-gray-500">
                   서비스 제공을 위해 필요한 최소한의 개인정보를 수집·이용합니다.
-                  보관 기간과 보호 조치를 포함하며, 미동의 시 이용이 제한될 수
-                  있습니다.
                 </p>
               </span>
             </label>
 
-            {/* 커뮤니티 약관 */}
+            {/* 커뮤니티 정책 (필수) → 추후 가입 바디에서 marketing_push_agreed로 매핑 */}
             <label className="flex flex-row items-start gap-4 cursor-pointer">
               <input
                 type="checkbox"
@@ -202,14 +197,16 @@ export default function ConsentPage() {
                 </span>
                 <span
                   className="mt-2 font-medium text-[12px] underline text-gray-500 cursor-pointer"
-                  onClick={() => openModal("community")}
+                  onClick={() => {
+                    setModalId("community");
+                    setModalOpen(true);
+                  }}
                 >
                   자세히 보기
                 </span>
                 <p className="mt-1 text-sm text-gray-500">
-                  이용자가 제보하는 모든 콘텐츠에 대한 책임과 신고, 게시물 관리
-                  절차에 동의합니다. 허위 또는 부적절한 콘텐츠는 삭제될 수
-                  있으며, 미동의 시 이용이 제한될 수 있습니다.
+                  허위 또는 부적절한 콘텐츠는 삭제될 수 있으며, 미동의 시 이용이
+                  제한될 수 있습니다.
                 </p>
               </span>
             </label>
@@ -217,26 +214,32 @@ export default function ConsentPage() {
             <div className="flex justify-center items-center mt-4">
               <button
                 type="submit"
-                disabled={!allRequired}
-                className={`mt-2 px-20 py-3 rounded-[10px] shadow-md transition
-                  ${
-                    allRequired
-                      ? "bg-mainMint text-black"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
+                disabled={!all}
+                className={`mt-2 px-20 py-3 rounded-[10px] shadow-md transition ${
+                  all
+                    ? "bg-mainMint text-black"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
               >
                 확인
               </button>
             </div>
 
-            {/* 안내 문구 */}
             <p className="mt-8 text-center text-xs text-gray-500">
               필수 항목 동의 시 서비스 이용이 가능합니다.
             </p>
           </form>
         </div>
       </div>
-      <PolicyModal open={modalOpen} policyId={modalId} onClose={closeModal} />
+
+      <PolicyModal
+        open={modalOpen}
+        policyId={modalId}
+        onClose={() => {
+          setModalOpen(false);
+          setModalId(null);
+        }}
+      />
     </div>
   );
 }
