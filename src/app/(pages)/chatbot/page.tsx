@@ -1,13 +1,15 @@
+// app/chatbot/page.tsx
 "use client";
 
 import PageLayout from "@/app/components/PageLayout";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 
-// 모바일 키보드 열림 감지 + 키보드 높이만큼 높이 조정
+/* -------------------- 모바일 키보드 감지 -------------------- */
 function useKeyboard() {
   const [isOpen, setIsOpen] = useState(false);
-  const [offset, setOffset] = useState(0); // 키보드가 가린 만큼 px
+  const [offset, setOffset] = useState(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -22,7 +24,6 @@ function useKeyboard() {
       }
       const dy = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
       setIsOpen(dy > 80);
-      // 80px 이상 줄어들면 키보드로 판단함
       setOffset(dy);
     };
 
@@ -41,8 +42,127 @@ function useKeyboard() {
   return { isOpen, offset };
 }
 
-type Msg = { id: number; role: "user"; text: string };
+/* -------------------- 엔드포인트 (트레일링 슬래시 유지) -------------------- */
+const EP = {
+  createSession: "/api/chatbot/api/session/create/",
+  listMessages: (sid: string) => `/api/chatbot/api/messages/${sid}/`,
+  chat: "/api/chatbot/api/chat/",
+};
 
+/* -------------------- 토큰/유틸 -------------------- */
+function readAccessToken(): string | null {
+  try {
+    const direct = localStorage.getItem("access_token");
+    if (direct) return direct;
+    const alt = localStorage.getItem("neston_auth_v1");
+    if (alt) {
+      const obj = JSON.parse(alt);
+      return obj?.access_token || obj?.access || null;
+    }
+  } catch {}
+  return null;
+}
+
+function decodeJwt(token: string | null): any | null {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(payload);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+function isTokenExpired(token: string | null, skewMs = 90_000): boolean {
+  const p = decodeJwt(token);
+  if (!p?.exp) return false;
+  const expMs = Number(p.exp) * 1000;
+  return Date.now() >= expMs - skewMs;
+}
+
+/* -------------------- axios 인스턴스 -------------------- */
+const api = axios.create({ withCredentials: true });
+api.defaults.headers.common["Accept"] = "application/json";
+api.defaults.headers.common["Content-Type"] = "application/json";
+
+// 요청 직전에 Authorization을 defaults에 세팅
+function applyAuthHeader() {
+  const token = readAccessToken();
+  if (token) api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  else delete api.defaults.headers.common["Authorization"];
+}
+
+async function getJSON<T>(url: string): Promise<T> {
+  applyAuthHeader();
+  const res = await api.get<T>(url, { validateStatus: () => true });
+  if (res.status >= 200 && res.status < 300) return res.data as T;
+  const anyData: any = res.data || {};
+  throw new Error(
+    anyData?.message ||
+      anyData?.detail ||
+      res.statusText ||
+      `GET 실패: ${res.status}`
+  );
+}
+
+async function postJSON<T>(url: string, body?: any): Promise<T> {
+  applyAuthHeader();
+  const res = await api.post<T>(url, body === undefined ? undefined : body, {
+    validateStatus: () => true,
+  });
+  if (res.status >= 200 && res.status < 300) return res.data as T;
+  const anyData: any = res.data || {};
+  throw new Error(
+    anyData?.message ||
+      anyData?.detail ||
+      res.statusText ||
+      `POST 실패: ${res.status}`
+  );
+}
+
+/* -------------------- 세션 생성: 빈 바디로 POST -------------------- */
+async function createSession(): Promise<{
+  success: boolean;
+  session_id: string;
+  created_at: string;
+}> {
+  const data = await postJSON<{
+    success: boolean;
+    session_id: string;
+    created_at: string;
+  }>(EP.createSession, undefined); // 빈 바디
+  if (!data?.session_id) throw new Error("세션 ID가 응답에 없습니다.");
+  return data;
+}
+
+/* -------------------- 타입/정규화 -------------------- */
+type RawMsg = {
+  id: number | string;
+  type: "user" | "bot";
+  content: string;
+  timestamp?: string;
+};
+
+type Msg = {
+  id: number | string;
+  role: "user" | "bot";
+  text: string;
+  timestamp?: string;
+};
+
+function normalizeMessages(raw: any): RawMsg[] {
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.messages)) return raw.messages;
+  if (Array.isArray(raw?.results)) return raw.results;
+  if (Array.isArray(raw?.data)) return raw.data;
+  if (raw && typeof raw === "object" && (raw as any).id && (raw as any).content)
+    return [raw as RawMsg];
+  return [];
+}
+
+/* -------------------- 컴포넌트 -------------------- */
 export default function Chatbot() {
   const { isOpen, offset } = useKeyboard();
   const [focused, setFocused] = useState(false);
@@ -52,28 +172,56 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
 
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(true);
+  const [sending, setSending] = useState(false);
+
   const hasMessages = messages.length > 0;
   const hideCtas = isOpen || focused || hasMessages;
+  const bottomSafePadding = useMemo(() => 80, []);
 
-  // 일단 로컬스토리지에 메세지 내용 저장하도록 구현
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = localStorage.getItem("neston_chat_messages");
-    if (raw) {
+    (async () => {
       try {
-        const parsed = JSON.parse(raw) as Msg[];
-        if (Array.isArray(parsed)) setMessages(parsed);
-      } catch {}
-    }
+        const token = readAccessToken();
+        if (!token || isTokenExpired(token)) {
+          try {
+            localStorage.removeItem("access_token");
+          } catch {}
+          try {
+            localStorage.removeItem("neston_auth_v1");
+          } catch {}
+          window.location.replace("/login");
+          return;
+        }
+
+        let sid = localStorage.getItem("neston_chat_session_id");
+        if (!sid) {
+          const created = await createSession();
+          sid = created.session_id;
+          localStorage.setItem("neston_chat_session_id", sid);
+        }
+        setSessionId(sid);
+
+        const raw = await getJSON<any>(EP.listMessages(sid!));
+        const normalized = normalizeMessages(raw);
+        setMessages(
+          normalized.map((m) => ({
+            id: m.id,
+            role: m.type,
+            text: m.content,
+            timestamp: m.timestamp,
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+        alert((e as any)?.message || "초기화 실패");
+      } finally {
+        setInitializing(false);
+      }
+    })();
   }, []);
 
-  // 로컬스토리지 저장
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("neston_chat_messages", JSON.stringify(messages));
-  }, [messages]);
-
-  // 새 메시지 생기면 스크롤 맨 아래로 가도록 함
   useEffect(() => {
     if (!listRef.current) return;
     listRef.current.scrollTo({
@@ -82,15 +230,32 @@ export default function Chatbot() {
     });
   }, [messages]);
 
-  // 전송
-  const send = () => {
+  const send = async () => {
     const v = input.trim();
-    if (!v) return;
-    setMessages((prev) => [...prev, { id: Date.now(), role: "user", text: v }]);
-    setInput("");
-  };
+    if (!v || !sessionId || sending) return;
+    setSending(true);
 
-  const bottomSafePadding = useMemo(() => 80, []);
+    const tempId = `temp-${Date.now()}`;
+    const userMsg: Msg = { id: tempId, role: "user", text: v };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+
+    try {
+      const reply = await postJSON<{ title?: string; content: string }>(
+        EP.chat,
+        { message: v, session_id: sessionId }
+      );
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now(), role: "bot", text: reply.content || "" },
+      ]);
+    } catch (e) {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      alert((e as any)?.message || "메시지 전송 실패");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <PageLayout>
@@ -100,7 +265,6 @@ export default function Chatbot() {
           paddingBottom: `calc(${bottomSafePadding}px + env(safe-area-inset-bottom))`,
         }}
       >
-        {/* 첫 메시지 이후엔 인사말, 로고 숨김 */}
         {!hasMessages && (
           <div className="flex w-full flex-col items-center">
             <div className="mt-10 rounded-[50px] border-2 bg-mainMint px-29 py-6 text-center text-xl">
@@ -109,12 +273,11 @@ export default function Chatbot() {
                 <strong>NestOn</strong> 입니다
               </p>
             </div>
-
             <Image
               src="/svg/mainLogo.svg"
               alt="chatbot"
               width={150}
-              height={121.793}
+              height={122}
               className="mt-13 mb-6"
               priority
             />
@@ -126,7 +289,6 @@ export default function Chatbot() {
             <p className="mb-10 text-center text-lg font-midium underline underline-offset-10">
               무엇을 도와드릴까요?
             </p>
-
             <div className="space-y-5">
               <button className="w-full rounded-full bg-white px-2 py-4 text-base font-medium shadow-md">
                 NestOn 추천 행사 보기
@@ -138,22 +300,37 @@ export default function Chatbot() {
           </section>
         )}
 
-        {/* 채팅 영역 */}
         <div className={hasMessages ? "w-full mt-20" : "w-full"}>
           <div className="h-[40vh] w-full">
             <div ref={listRef} className="h-full w-full overflow-y-auto pr-1">
-              {messages.map((m) => (
-                <div key={m.id} className="mb-3 flex justify-end">
-                  <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 shadow">
-                    <p className="text-sm leading-relaxed">{m.text}</p>
+              {messages.map((m) => {
+                const isUser = m.role === "user";
+                return (
+                  <div
+                    key={m.id}
+                    className={`mb-3 flex ${
+                      isUser ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 shadow">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {m.text}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              {initializing && (
+                <div className="mb-3 flex justify-center">
+                  <div className="rounded-2xl bg-white px-4 py-2 shadow text-xs text-gray-500">
+                    불러오는 중…
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
-        {/* 하단 입력 바 */}
         <div
           className="fixed inset-x-0 z-50 flex flex-row justify-center items-center gap-3 mx-4 mb-8"
           style={{
@@ -166,8 +343,8 @@ export default function Chatbot() {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="메시지 보내기"
-                className="h-8 flex-1 rounded-full bg-whtie px-4 outline-none placeholder:text-gray-400"
+                placeholder={sessionId ? "메시지 보내기" : "세션 준비 중..."}
+                className="h-8 flex-1 rounded-full bg-white px-4 outline-none placeholder:text-gray-400"
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 autoComplete="off"
@@ -176,6 +353,7 @@ export default function Chatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && send()}
+                disabled={!sessionId || sending}
               />
             </div>
           </div>
@@ -184,6 +362,7 @@ export default function Chatbot() {
             onClick={send}
             aria-label="전송"
             title="전송"
+            disabled={!sessionId || sending || !input.trim()}
           >
             ↑
           </button>
