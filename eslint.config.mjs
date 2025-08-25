@@ -6,7 +6,18 @@ const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 
 export default [
   // (A) 자동 생성물 무시
-  { ignores: ["**/.next/**", "next-env.d.ts"] },
+  {
+    ignores: [
+      "**/.next/**",
+      "next-env.d.ts",
+      "next.config.*",
+      "postcss.config.*",
+      "tailwind.config.*",
+      "dist",
+      ".next",
+      "node_modules",
+    ],
+  },
 
   // (B) Next.js 권장 규칙
   ...compat.config({ extends: ["next/core-web-vitals"] }),

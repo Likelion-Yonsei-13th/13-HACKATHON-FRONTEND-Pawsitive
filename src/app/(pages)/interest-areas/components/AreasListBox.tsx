@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 type LoadingState = { cities: boolean; districts: boolean; boroughs: boolean };

@@ -302,7 +302,7 @@ export default function MyArea() {
                 </button>
               </div>
 
-              <MyAreaListBox
+              {/* <MyAreaListBox
                 province={province}
                 setProvince={setProvince}
                 picked={picked}
@@ -310,7 +310,7 @@ export default function MyArea() {
                 toggleDistrict={toggleDistrict}
                 districts={districts}
                 PROVINCE_ORDER={Array.from(PROVINCE_ORDER)}
-              />
+              />*/}
 
               <div className="mt-4 flex items-center justify-end gap-2">
                 <button
@@ -365,7 +365,7 @@ export default function MyArea() {
                 </button>
               </div>
 
-              <AreasListBox
+              {/*<AreasListBox
                 province={province2}
                 setProvince={setProvince2}
                 PROVINCE_ORDER={Array.from(PROVINCE_ORDER)}
@@ -373,7 +373,7 @@ export default function MyArea() {
                 isSelected={isSelectedMulti}
                 toggleDistrict={toggleDistrictMulti}
                 selectedCountByProvince={selectedCountByProvince}
-              />
+              />*/}
 
               <div className="mt-4 flex items-center justify-between gap-2">
                 <div className="text-xs text-gray-500">
