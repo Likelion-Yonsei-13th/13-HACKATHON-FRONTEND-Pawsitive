@@ -1,25 +1,35 @@
-// app/api/user/[...slug]/route.ts
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request, ctx: { params: { slug: string[] } }) {
-  return proxy(req, ctx);
-}
-export async function POST(req: Request, ctx: { params: { slug: string[] } }) {
-  return proxy(req, ctx);
-}
-export async function PUT(req: Request, ctx: { params: { slug: string[] } }) {
-  return proxy(req, ctx);
-}
-export async function PATCH(req: Request, ctx: { params: { slug: string[] } }) {
-  return proxy(req, ctx);
-}
-export async function DELETE(
+type Params = { slug: string[] };
+
+async function handle(
   req: Request,
-  ctx: { params: { slug: string[] } }
+  ctx: { params: Params } | { params: Promise<Params> }
 ) {
-  return proxy(req, ctx);
+  const p = (ctx as any).params?.then
+    ? await (ctx as any).params
+    : (ctx as any).params;
+  const slug: string[] = Array.isArray(p?.slug) ? p.slug : [];
+  return proxy(req, slug);
 }
+
+export async function GET(req: Request, ctx: any) {
+  return handle(req, ctx);
+}
+export async function POST(req: Request, ctx: any) {
+  return handle(req, ctx);
+}
+export async function PUT(req: Request, ctx: any) {
+  return handle(req, ctx);
+}
+export async function PATCH(req: Request, ctx: any) {
+  return handle(req, ctx);
+}
+export async function DELETE(req: Request, ctx: any) {
+  return handle(req, ctx);
+}
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
@@ -27,35 +37,25 @@ export async function OPTIONS() {
   });
 }
 
-async function proxy(req: Request, { params }: { params: { slug: string[] } }) {
+async function proxy(req: Request, slug: string[]) {
   const upstreamBase =
     process.env.NESTON_UPSTREAM_BASE || "https://neston.ai.kr";
   const orig = new URL(req.url);
-  const slugPath = (params.slug || []).join("/");
-  const basePath = `/api/user/${slugPath}`;
+  const basePath = `/api/user/${slug.join("/")}`;
+  const isWrite = /^(POST|PUT|PATCH|DELETE)$/i.test(req.method);
+  const normalizedPath = isWrite ? `${basePath}/` : basePath;
+  const upstreamUrl = new URL(normalizedPath + orig.search, upstreamBase);
 
-  // POST/PUT/PATCH/DELETE → 트레일링 슬래시 강제
-  const wantsSlash = /^(POST|PUT|PATCH|DELETE)$/i.test(req.method);
-  const normalizedPath = wantsSlash ? `${basePath}/` : basePath;
-  let upstreamUrl = new URL(normalizedPath + orig.search, upstreamBase);
-
-  // ---- 헤더 화이트리스트
   const headers = new Headers();
-  // 기본 헤더
+  const auth =
+    req.headers.get("authorization") || req.headers.get("Authorization");
+  if (auth) {
+    headers.set("Authorization", auth);
+    headers.set("authorization", auth);
+  }
   headers.set("Accept", req.headers.get("accept") || "application/json");
   const ct = req.headers.get("content-type");
   if (ct) headers.set("Content-Type", ct);
-
-  // 인증 필요 없는 엔드포인트는 Authorization 제거(이 라우트 자체가 공용이면 항상 제거해도 OK)
-  const pathLower = normalizedPath.toLowerCase();
-  const inAuth =
-    req.headers.get("authorization") || req.headers.get("Authorization");
-  if (inAuth && !/\/check-username\/?$/i.test(pathLower)) {
-    headers.set("Authorization", inAuth);
-    headers.set("authorization", inAuth);
-  }
-
-  // 브라우저/CORS/프록시 메타 제거(쿠키 포함)
   for (const k of [
     "cookie",
     "origin",
@@ -72,7 +72,6 @@ async function proxy(req: Request, { params }: { params: { slug: string[] } }) {
   ])
     headers.delete(k);
 
-  // 바디(비어있으면 생략)
   const rawBody = ["GET", "HEAD", "OPTIONS"].includes(req.method)
     ? undefined
     : await req.arrayBuffer();
@@ -85,53 +84,26 @@ async function proxy(req: Request, { params }: { params: { slug: string[] } }) {
     cache: "no-store",
     redirect: "manual",
   };
-
-  // 요청 + 리다이렉트 수동 팔로우
-  let upstreamRes = await fetchFollow(upstreamUrl, init, upstreamBase);
-
-  // 404/405 → 슬래시 토글 재시도
-  if (
-    (upstreamRes.status === 404 || upstreamRes.status === 405) &&
-    wantsSlash
-  ) {
-    const toggled = normalizedPath.endsWith("/")
-      ? normalizedPath.slice(0, -1)
-      : normalizedPath + "/";
-    const retryUrl = new URL(toggled + orig.search, upstreamBase);
-    const retryRes = await fetchFollow(retryUrl, init, upstreamBase);
-    if (retryRes.status < 400) {
-      upstreamRes = retryRes;
-      upstreamUrl = retryUrl;
-    }
+  let r = await fetch(upstreamUrl, init);
+  if ([301, 302, 303, 307, 308].includes(r.status)) {
+    const loc = r.headers.get("location");
+    if (loc) r = await fetch(new URL(loc, upstreamBase), init);
   }
 
-  const buf = await upstreamRes.arrayBuffer();
-
-  // 디버그 헤더
-  const respHeaders = new Headers(upstreamRes.headers);
+  const buf = await r.arrayBuffer();
+  const respHeaders = new Headers(r.headers);
   respHeaders.set("x-upstream-url", upstreamUrl.toString());
-  if (upstreamRes.status >= 400) {
+  if (r.status >= 400) {
     try {
+      const txt = new TextDecoder().decode(buf);
       respHeaders.set(
         "x-upstream-error",
-        new TextDecoder().decode(buf).slice(0, 200).replace(/\s+/g, " ")
+        txt.slice(0, 200).replace(/[^\x20-\x7E]/g, "?")
       );
     } catch {}
   }
   for (const k of ["content-encoding", "transfer-encoding", "connection"])
     respHeaders.delete(k);
 
-  return new Response(buf, {
-    status: upstreamRes.status,
-    headers: respHeaders,
-  });
-}
-
-async function fetchFollow(url: URL, init: RequestInit, base: string) {
-  let r = await fetch(url, init);
-  if ([301, 302, 303, 307, 308].includes(r.status)) {
-    const loc = r.headers.get("location");
-    if (loc) r = await fetch(new URL(loc, base), init); // 메서드 유지
-  }
-  return r;
+  return new Response(buf, { status: r.status, headers: respHeaders });
 }

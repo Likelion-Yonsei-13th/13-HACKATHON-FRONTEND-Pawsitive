@@ -1,83 +1,145 @@
-type Picked = { province: string; district: string } | null;
+"use client";
+
+type LoadingState = { cities: boolean; districts: boolean; boroughs: boolean };
 
 type Props = {
-  province: string;
-  setProvince: (p: string) => void;
-  picked: Picked;
-  isSelected: (prov: string, d: string) => boolean;
-  toggleDistrict: (prov: string, d: string) => void;
+  cities: string[];
   districts: string[];
-  PROVINCE_ORDER: string[];
+  boroughs: string[];
+
+  city: string;
+  setCity: (v: string) => void;
+
+  district: string;
+  setDistrict: (v: string) => void;
+
+  borough: string;
+  setBorough: (v: string) => void;
+
+  loading: LoadingState;
 };
 
 export default function MyAreaListBox({
-  province,
-  setProvince,
-  picked,
-  isSelected,
-  toggleDistrict,
+  cities,
   districts,
-  PROVINCE_ORDER,
+  boroughs,
+  city,
+  setCity,
+  district,
+  setDistrict,
+  borough,
+  setBorough,
+  loading,
 }: Props) {
-  return (
-    <>
-      {/* 리스트 박스 */}
+  const hasBoroughs = boroughs.length > 0;
 
-      <div className="mt-9 grid grid-cols-[120px_1fr] border border-gray-300 bg-white">
-        {/* 좌측: 시/도 */}
-        <div
-          className="h-80 overflow-y-auto border-r border-gray-300"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          {PROVINCE_ORDER.map((p) => {
-            const current = p === province;
-            const isPickedInThis = picked?.province === p;
+  return (
+    <div
+      className={`mt-9 grid ${
+        hasBoroughs ? "grid-cols-[120px_1fr_1fr]" : "grid-cols-[120px_1fr]"
+      } border border-gray-300 bg-white`}
+    >
+      {/* 좌측: 시/도 */}
+      <div
+        className="h-80 overflow-y-auto border-r border-gray-300"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {loading.cities && cities.length === 0 ? (
+          <p className="px-3 py-3 text-center text-sm text-gray-400">
+            불러오는 중…
+          </p>
+        ) : (
+          cities.map((c) => {
+            const current = c === city;
+            const pickedHere = current;
             return (
               <button
-                key={p}
+                key={c}
                 type="button"
-                onClick={() => setProvince(p)}
-                className={`relative block w-full px-3 py-3 text-center text-md ${
+                onClick={() => setCity(c)}
+                className={`relative block w-full px-3 py-3 text-center text-sm ${
                   current
                     ? "bg-white text-gray-900 font-semibold"
-                    : "bg-gray-300 text-gray-500 font-light opacity-70"
+                    : "bg-gray-300 text-gray-600 font-light opacity-80"
                 }`}
               >
-                {p}
-                {isPickedInThis && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
-                    1
+                {c}
+                {pickedHere && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-emerald-100 px-1 py-0.5 text-xs text-emerald-700">
+                    ✓
                   </span>
                 )}
               </button>
             );
-          })}
-        </div>
+          })
+        )}
+      </div>
 
-        {/* 우측: 구/시 (단일 토글 선택) */}
-        <div
-          className="h-80 overflow-y-auto"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          {districts.map((d) => {
-            const sel = isSelected(province, d);
+      {/* 가운데: 시/군/구 */}
+      <div
+        className={`h-80 overflow-y-auto ${
+          hasBoroughs ? "border-r border-gray-300" : ""
+        }`}
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {loading.districts && districts.length === 0 ? (
+          <p className="px-4 py-3 text-sm text-gray-400">불러오는 중…</p>
+        ) : districts.length === 0 ? (
+          <p className="px-4 py-3 text-sm text-gray-400">
+            해당 시/도의 데이터가 없습니다.
+          </p>
+        ) : (
+          districts.map((d) => {
+            const sel = d === district;
             return (
               <button
                 key={d}
                 type="button"
-                onClick={() => toggleDistrict(province, d)}
+                onClick={() => setDistrict(d)}
                 className={`block w-full px-4 py-3 text-left text-sm border-b last:border-b-0 border-gray-100 ${
                   sel
                     ? "bg-white text-gray-900 font-semibold"
-                    : "bg-white text-gray-500 font-light opacity-70"
+                    : "bg-white text-gray-600 font-light opacity-80"
                 }`}
               >
                 {d}
               </button>
             );
-          })}
-        </div>
+          })
+        )}
       </div>
-    </>
+
+      {/* 우측: 일반구(있는 경우만) */}
+      {hasBoroughs && (
+        <div
+          className="h-80 overflow-y-auto"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {loading.boroughs && boroughs.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-gray-400">불러오는 중…</p>
+          ) : boroughs.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-gray-400">일반구 없음</p>
+          ) : (
+            boroughs.map((b) => {
+              const sel = b === borough;
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setBorough(b)}
+                  className={`block w-full px-4 py-3 text-left text-sm border-b last:border-b-0 border-gray-100 ${
+                    sel
+                      ? "bg-white text-gray-900 font-semibold"
+                      : "bg-white text-gray-600 font-light opacity-80"
+                  }`}
+                >
+                  {b}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
   );
 }
