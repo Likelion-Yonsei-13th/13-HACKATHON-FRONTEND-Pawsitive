@@ -47,6 +47,7 @@ const EP = {
   createSession: "/api/chatbot/api/session/create/",
   listMessages: (sid: string) => `/api/chatbot/api/messages/${sid}/`,
   chat: "/api/chatbot/api/chat/",
+  csrfPrime: "/api/_auth/csrf/prime", // ← 로컬 프록시로 CSRF 토큰 받아오기
 };
 
 /* -------------------- 토큰/유틸 -------------------- */
@@ -195,6 +196,19 @@ export default function Chatbot() {
           return;
         }
 
+        // 1) CSRF 프라임(로컬 쿠키에 csrftoken 심기)
+        try {
+          await fetch("/api/_auth/csrf/prime", {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          });
+        } catch (e) {
+          // 프라임 실패해도 계속 시도(서버가 헤더 인증만 받는 구성일 수 있음)
+          console.warn("CSRF prime failed (continue anyway):", e);
+        }
+
+        // 2) 세션 생성
         let sid = localStorage.getItem("neston_chat_session_id");
         if (!sid) {
           const created = await createSession();
@@ -203,6 +217,7 @@ export default function Chatbot() {
         }
         setSessionId(sid);
 
+        // 3) 기존 메시지 로드
         const raw = await getJSON<any>(EP.listMessages(sid!));
         const normalized = normalizeMessages(raw);
         setMessages(
